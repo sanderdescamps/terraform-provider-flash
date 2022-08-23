@@ -82,7 +82,6 @@ func NewConfig(d *schema.ResourceData) (*Config, error) {
 }
 
 // Client returns a new client for accessing flasharray.
-//
 func (c *Config) Client() (*flasharray.Client, error) {
 
 	client, err := flasharray.NewClient(c.Target, c.Username, c.Password, c.APIToken, c.RestVersion, c.VerifyHTTPS, c.SslCert, c.UserAgent, c.RequestKwargs)
