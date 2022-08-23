@@ -41,3 +41,9 @@ website/vendor
 
 # .tfvars files
 *.tfvars
+
+# vscode files
+.vscode
+
+# builds
+terraform-provider-flash_*
