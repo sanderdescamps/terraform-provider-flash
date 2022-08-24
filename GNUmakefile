@@ -11,12 +11,11 @@ TF_PLUGIN_PATH=~/.terraform.d/plugins/localdomain/provider/${PROVIDER_NAME}/${VE
 default: build
 
 .build: 
-	GOOS=${OS} GOARCH=${ARCH} go build -o ${PKG_NAME}
+	GOOS=${OS} GOARCH=${ARCH} go build -o ${PKG_NAME}_${VERSION}_${OS_ARCH}
 
 .install: 
 	mkdir -p ${TF_PLUGIN_PATH}
-	cp ${PKG_NAME} ${TF_PLUGIN_PATH}/${PKG_NAME}
-	mv ${PKG_NAME} ${PKG_NAME}_${VERSION}_${OS_ARCH}
+	cp ${PKG_NAME}_${VERSION}_${OS_ARCH} ${TF_PLUGIN_PATH}/${PKG_NAME}
 
 build: fmtcheck .build
 	
