@@ -130,7 +130,6 @@ func resourcePureHost() *schema.Resource {
 
 func resourcePureHostCreate(d *schema.ResourceData, m interface{}) error {
 
-	d.Partial(true)
 	client := m.(*flasharray.Client)
 	var h *flasharray.Host
 	var err error
@@ -141,7 +140,7 @@ func resourcePureHostCreate(d *schema.ResourceData, m interface{}) error {
 
 	if wl, ok := d.GetOk("wwn"); ok {
 		var wwnlist []string
-		for _, element := range wl.([]interface{}) {
+		for _, element := range wl.(*schema.Set).List() {
 			wwnlist = append(wwnlist, element.(string))
 		}
 		data["wwnlist"] = wwnlist
@@ -149,7 +148,7 @@ func resourcePureHostCreate(d *schema.ResourceData, m interface{}) error {
 
 	if il, ok := d.GetOk("iqn"); ok {
 		var iqnlist []string
-		for _, element := range il.([]interface{}) {
+		for _, element := range il.(*schema.Set).List() {
 			iqnlist = append(iqnlist, element.(string))
 		}
 		data["iqnlist"] = iqnlist
@@ -157,7 +156,7 @@ func resourcePureHostCreate(d *schema.ResourceData, m interface{}) error {
 
 	if nl, ok := d.GetOk("nqn"); ok {
 		var nqnlist []string
-		for _, element := range nl.([]interface{}) {
+		for _, element := range nl.(*schema.Set).List() {
 			nqnlist = append(nqnlist, element.(string))
 		}
 		data["nqnlist"] = nqnlist
@@ -165,7 +164,7 @@ func resourcePureHostCreate(d *schema.ResourceData, m interface{}) error {
 
 	if pa, ok := d.GetOk("preferred_array"); ok {
 		var preferredArray []string
-		for _, element := range pa.([]interface{}) {
+		for _, element := range pa.(*schema.Set).List() {
 			preferredArray = append(preferredArray, element.(string))
 		}
 		data["preferred_array"] = preferredArray
@@ -176,6 +175,18 @@ func resourcePureHostCreate(d *schema.ResourceData, m interface{}) error {
 		if err != nil {
 			return err
 		}
+		if val, ok := data["wwnlist"]; ok {
+			d.Set("wwn", val)
+		}
+		if val, ok := data["iqnlist"]; ok {
+			d.Set("iqn", val)
+		}
+		if val, ok := data["nqnlist"]; ok {
+			d.Set("nqn", val)
+		}
+		if val, ok := data["preferred_array"]; ok {
+			d.Set("preferred_array", val)
+		}
 	} else {
 		h, err = client.Hosts.CreateHost(v.(string), nil)
 		if err != nil {
@@ -183,11 +194,7 @@ func resourcePureHostCreate(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 	d.SetId(h.Name)
-	d.SetPartial("name")
-	d.SetPartial("wwn")
-	d.SetPartial("iqn")
-	d.SetPartial("nqn")
-	d.SetPartial("preferred_array")
+	d.Set("name", v.(string))
 
 	chapDetails := make(map[string]interface{})
 	if hostPassword, ok := d.GetOk("host_password"); ok {
@@ -211,19 +218,18 @@ func resourcePureHostCreate(d *schema.ResourceData, m interface{}) error {
 		if err != nil {
 			return err
 		}
+		for k, v := range chapDetails {
+			d.Set(k, v)
 	}
-	d.SetPartial("host_password")
-	d.SetPartial("host_user")
-	d.SetPartial("target_password")
-	d.SetPartial("target_user")
+	}
 
 	if personality, ok := d.GetOk("personality"); ok {
 		h, err = client.Hosts.SetHost(h.Name, map[string]string{"personality": personality.(string)})
 		if err != nil {
 			return err
 		}
+		d.Set("personality", personality.(string))
 	}
-	d.SetPartial("personality")
 
 	if cv := d.Get("volume").(*schema.Set).List(); len(cv) > 0 {
 		for _, volume := range cv {
@@ -237,8 +243,6 @@ func resourcePureHostCreate(d *schema.ResourceData, m interface{}) error {
 			}
 		}
 	}
-
-	d.Partial(false)
 
 	return resourcePureHostRead(d, m)
 }
@@ -280,7 +284,6 @@ func resourcePureHostRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourcePureHostUpdate(d *schema.ResourceData, m interface{}) error {
-	d.Partial(true)
 	client := m.(*flasharray.Client)
 	var h *flasharray.Host
 	var err error
@@ -290,8 +293,8 @@ func resourcePureHostUpdate(d *schema.ResourceData, m interface{}) error {
 			return err
 		}
 		d.SetId(h.Name)
+		d.Set("name", d.Get("name").(string))
 	}
-	d.SetPartial("name")
 
 	if d.HasChange("wwn") {
 		var wwnlist []string
@@ -303,8 +306,8 @@ func resourcePureHostUpdate(d *schema.ResourceData, m interface{}) error {
 		if _, err = client.Hosts.SetHost(d.Id(), data); err != nil {
 			return err
 		}
+		d.Set("wwn", wwnlist)
 	}
-	d.SetPartial("wwn")
 
 	if d.HasChange("iqn") {
 		var iqnlist []string
@@ -316,8 +319,8 @@ func resourcePureHostUpdate(d *schema.ResourceData, m interface{}) error {
 		if _, err = client.Hosts.SetHost(d.Id(), data); err != nil {
 			return err
 		}
+		d.Set("iqn", iqnlist)
 	}
-	d.SetPartial("iqn")
 
 	if d.HasChange("nqn") {
 		var nqnlist []string
@@ -329,8 +332,8 @@ func resourcePureHostUpdate(d *schema.ResourceData, m interface{}) error {
 		if _, err = client.Hosts.SetHost(d.Id(), data); err != nil {
 			return err
 		}
+		d.Set("nqn", nqnlist)
 	}
-	d.SetPartial("nqn")
 
 	if d.HasChange("preferred_array") {
 		var preferredArray []string
@@ -342,8 +345,8 @@ func resourcePureHostUpdate(d *schema.ResourceData, m interface{}) error {
 		if _, err = client.Hosts.SetHost(d.Id(), data); err != nil {
 			return err
 		}
+		d.Set("preferred_array", preferredArray)
 	}
-	d.SetPartial("preferred_array")
 
 	chapDetails := make(map[string]interface{})
 
@@ -367,18 +370,18 @@ func resourcePureHostUpdate(d *schema.ResourceData, m interface{}) error {
 		if _, err = client.Hosts.SetHost(d.Id(), chapDetails); err != nil {
 			return err
 		}
+
+		for k, v := range chapDetails {
+			d.Set(k, v)
 	}
-	d.SetPartial("host_password")
-	d.SetPartial("host_user")
-	d.SetPartial("target_password")
-	d.SetPartial("target_user")
+	}
 
 	if d.HasChange("personality") {
 		if _, err = client.Hosts.SetHost(d.Id(), map[string]string{"personality": d.Get("personality").(string)}); err != nil {
 			return err
 		}
+		d.Set("personality", d.Get("personality").(string))
 	}
-	d.SetPartial("personality")
 
 	if d.HasChange("volume") {
 		o, n := d.GetChange("volume")
@@ -416,7 +419,6 @@ func resourcePureHostUpdate(d *schema.ResourceData, m interface{}) error {
 			}
 		}
 	}
-	d.Partial(false)
 
 	return resourcePureHostRead(d, m)
 }

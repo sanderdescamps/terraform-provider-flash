@@ -203,11 +203,19 @@ func resourcePureProtectiongroupCreate(d *schema.ResourceData, m interface{}) er
 		return err
 	}
 	d.SetId(pgroup.Name)
-	d.SetPartial("name")
-	d.SetPartial("hosts")
-	d.SetPartial("volumes")
-	d.SetPartial("hgroups")
-	d.SetPartial("targets")
+	d.Set("name", d.Get("name").(string))
+	if val, ok := data["hostlist"]; ok {
+		d.Set("hosts", val)
+	}
+	if val, ok := data["vollist"]; ok {
+		d.Set("volumes", val)
+	}
+	if val, ok := data["hgrouplist"]; ok {
+		d.Set("hgroups", val)
+	}
+	if val, ok := data["targetlist"]; ok {
+		d.Set("targets", val)
+	}
 
 	retentionData := make(map[string]interface{})
 	if allFor, ok := d.GetOk("all_for"); ok {
@@ -236,13 +244,11 @@ func resourcePureProtectiongroupCreate(d *schema.ResourceData, m interface{}) er
 
 	if _, err = client.Protectiongroups.SetProtectiongroup(d.Id(), retentionData); err != nil {
 		return err
+	} else {
+		for k, v := range retentionData {
+			d.Set(k, v)
 	}
-	d.SetPartial("all_for")
-	d.SetPartial("days")
-	d.SetPartial("per_day")
-	d.SetPartial("target_all_for")
-	d.SetPartial("target_days")
-	d.SetPartial("target_per_day")
+	}
 
 	scheduleData := make(map[string]interface{})
 
@@ -268,12 +274,11 @@ func resourcePureProtectiongroupCreate(d *schema.ResourceData, m interface{}) er
 
 	if _, err = client.Protectiongroups.SetProtectiongroup(d.Id(), scheduleData); err != nil {
 		return err
+	} else {
+		for k, v := range scheduleData {
+			d.Set(k, v)
 	}
-	d.SetPartial("replicate_at")
-	d.SetPartial("replicate_blackout")
-	d.SetPartial("replicate_frequency")
-	d.SetPartial("snap_at")
-	d.SetPartial("snap_frequency")
+	}
 
 	if replicateEnabled, ok := d.GetOk("replicate_enabled"); ok {
 		if replicateEnabled.(bool) {
@@ -285,8 +290,8 @@ func resourcePureProtectiongroupCreate(d *schema.ResourceData, m interface{}) er
 				return err
 			}
 		}
+		d.Set("replicate_enabled", replicateEnabled.(bool))
 	}
-	d.SetPartial("replicate_enabled")
 
 	if snapEnabled, ok := d.GetOk("snap_enabled"); ok {
 		if snapEnabled.(bool) {
@@ -298,8 +303,8 @@ func resourcePureProtectiongroupCreate(d *schema.ResourceData, m interface{}) er
 				return err
 			}
 		}
+		d.Set("snap_enabled", snapEnabled.(bool))
 	}
-	d.Partial(false)
 
 	return resourcePureProtectiongroupRead(d, m)
 }
@@ -347,7 +352,6 @@ func resourcePureProtectiongroupRead(d *schema.ResourceData, m interface{}) erro
 }
 
 func resourcePureProtectiongroupUpdate(d *schema.ResourceData, m interface{}) error {
-	d.Partial(true)
 
 	var pgroup *flasharray.Protectiongroup
 	var err error
@@ -358,8 +362,8 @@ func resourcePureProtectiongroupUpdate(d *schema.ResourceData, m interface{}) er
 			return err
 		}
 		d.SetId(pgroup.Name)
+		d.Set("name", pgroup.Name)
 	}
-	d.SetPartial("name")
 
 	data := make(map[string]interface{})
 	if d.HasChange("hosts") {
@@ -399,10 +403,18 @@ func resourcePureProtectiongroupUpdate(d *schema.ResourceData, m interface{}) er
 			return err
 		}
 	}
-	d.SetPartial("hosts")
-	d.SetPartial("volumes")
-	d.SetPartial("hgroups")
-	d.SetPartial("targets")
+	if val, ok := data["hostlist"]; ok {
+		d.Set("hosts", val)
+	}
+	if val, ok := data["vollist"]; ok {
+		d.Set("volumes", val)
+	}
+	if val, ok := data["hgrouplist"]; ok {
+		d.Set("hgroups", val)
+	}
+	if val, ok := data["targetlist"]; ok {
+		d.Set("targets", val)
+	}
 
 	retentionData := make(map[string]interface{})
 	if d.HasChange("all_for") {
@@ -432,14 +444,12 @@ func resourcePureProtectiongroupUpdate(d *schema.ResourceData, m interface{}) er
 	if len(retentionData) > 0 {
 		if _, err = client.Protectiongroups.SetProtectiongroup(d.Id(), retentionData); err != nil {
 			return err
+		} else {
+			for k, v := range retentionData {
+				d.Set(k, v)
 		}
 	}
-	d.SetPartial("all_for")
-	d.SetPartial("days")
-	d.SetPartial("per_day")
-	d.SetPartial("target_all_for")
-	d.SetPartial("target_days")
-	d.SetPartial("target_per_day")
+	}
 
 	scheduleData := make(map[string]interface{})
 
@@ -466,13 +476,12 @@ func resourcePureProtectiongroupUpdate(d *schema.ResourceData, m interface{}) er
 	if len(scheduleData) > 0 {
 		if _, err = client.Protectiongroups.SetProtectiongroup(d.Id(), scheduleData); err != nil {
 			return err
+		} else {
+			for k, v := range scheduleData {
+				d.Set(k, v)
 		}
 	}
-	d.SetPartial("replicate_at")
-	d.SetPartial("replicate_blackout")
-	d.SetPartial("replicate_frequency")
-	d.SetPartial("snap_at")
-	d.SetPartial("snap_frequency")
+	}
 
 	if d.HasChange("replicate_enabled") {
 		if d.Get("replicate_enabled").(bool) {
@@ -484,8 +493,8 @@ func resourcePureProtectiongroupUpdate(d *schema.ResourceData, m interface{}) er
 				return err
 			}
 		}
+		d.Set("replicate_enabled", d.Get("replicate_enabled").(bool))
 	}
-	d.SetPartial("replicate_enabled")
 
 	if d.HasChange("snap_enabled") {
 		if d.Get("snap_enabled").(bool) {
@@ -497,9 +506,9 @@ func resourcePureProtectiongroupUpdate(d *schema.ResourceData, m interface{}) er
 				return err
 			}
 		}
+		d.Set("snap_enabled", d.Get("snap_enabled").(bool))
 	}
 
-	d.Partial(false)
 	return resourcePureProtectiongroupRead(d, m)
 }
 

@@ -80,8 +80,8 @@ func resourcePureHostgroupCreate(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 	d.SetId(hgroup.Name)
-	d.SetPartial("name")
-	d.SetPartial("hosts")
+	d.Set("name", d.Get("name").(string))
+	d.Set("hosts", hosts)
 
 	var connectedVolumes []string
 	if cv, ok := d.GetOk("connected_volumes"); ok {
@@ -103,7 +103,6 @@ func resourcePureHostgroupCreate(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 
-	d.Partial(false)
 	return resourcePureHostgroupRead(d, m)
 }
 
@@ -129,18 +128,17 @@ func resourcePureHostgroupRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourcePureHostgroupUpdate(d *schema.ResourceData, m interface{}) error {
-	d.Partial(true)
 	client := m.(*flasharray.Client)
-	var h *flasharray.Hostgroup
+	var hgroup *flasharray.Hostgroup
 	var err error
 
 	if d.HasChange("name") {
-		if h, err = client.Hostgroups.RenameHostgroup(d.Id(), d.Get("name").(string)); err != nil {
+		if hgroup, err = client.Hostgroups.RenameHostgroup(d.Id(), d.Get("name").(string)); err != nil {
 			return err
 		}
-		d.SetId(h.Name)
+		d.SetId(hgroup.Name)
+		d.Set("name", d.Get("name").(string))
 	}
-	d.SetPartial("name")
 
 	if d.HasChange("hosts") {
 		var hosts []string
@@ -152,7 +150,6 @@ func resourcePureHostgroupUpdate(d *schema.ResourceData, m interface{}) error {
 			return err
 		}
 	}
-	d.SetPartial("hosts")
 
 	if d.HasChange("volume") {
 		o, n := d.GetChange("volume")
@@ -191,7 +188,6 @@ func resourcePureHostgroupUpdate(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 
-	d.Partial(false)
 	return resourcePureHostgroupRead(d, m)
 }
 

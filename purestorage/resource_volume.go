@@ -131,8 +131,8 @@ func resourcePureVolumeUpdate(d *schema.ResourceData, m interface{}) error {
 			return err
 		}
 		d.SetId(v.Name)
+		d.Set("name", d.Get("name").(string))
 	}
-	d.SetPartial("name")
 
 	if d.HasChange("source") {
 		snapshot, err := client.Volumes.CreateSnapshot(d.Id(), "")
@@ -143,8 +143,8 @@ func resourcePureVolumeUpdate(d *schema.ResourceData, m interface{}) error {
 		if _, err = client.Volumes.CopyVolume(d.Id(), d.Get("source").(string), true); err != nil {
 			return err
 		}
+		d.Set("source", d.Get("source").(string))
 	}
-	d.SetPartial("source")
 
 	if d.HasChange("size") {
 		oldVol, err := client.Volumes.GetVolume(d.Id(), nil)
@@ -158,7 +158,6 @@ func resourcePureVolumeUpdate(d *schema.ResourceData, m interface{}) error {
 			return fmt.Errorf("error: New size must be larger than current size. Truncating volumes not supported")
 		}
 	}
-	d.Partial(false)
 
 	return resourcePureVolumeRead(d, m)
 }
