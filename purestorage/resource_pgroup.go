@@ -17,16 +17,19 @@
 package purestorage
 
 import (
+	"context"
+
 	"github.com/devans10/pugo/flasharray"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourcePureProtectiongroup() *schema.Resource {
 	return &schema.Resource{
-		Create: resourcePureProtectiongroupCreate,
-		Read:   resourcePureProtectiongroupRead,
-		Update: resourcePureProtectiongroupUpdate,
-		Delete: resourcePureProtectiongroupDelete,
+		CreateContext: resourcePureProtectiongroupCreate,
+		ReadContext:   resourcePureProtectiongroupRead,
+		UpdateContext: resourcePureProtectiongroupUpdate,
+		DeleteContext: resourcePureProtectiongroupDelete,
 		Importer: &schema.ResourceImporter{
 			State: resourcePureProtectiongroupImport,
 		},
@@ -158,7 +161,7 @@ func resourcePureProtectiongroup() *schema.Resource {
 	}
 }
 
-func resourcePureProtectiongroupCreate(d *schema.ResourceData, m interface{}) error {
+func resourcePureProtectiongroupCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	d.Partial(true)
 
 	client := m.(*flasharray.Client)
@@ -200,7 +203,7 @@ func resourcePureProtectiongroupCreate(d *schema.ResourceData, m interface{}) er
 	}
 
 	if pgroup, err = client.Protectiongroups.CreateProtectiongroup(d.Get("name").(string), data); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	d.SetId(pgroup.Name)
 	d.Set("name", d.Get("name").(string))
@@ -243,7 +246,7 @@ func resourcePureProtectiongroupCreate(d *schema.ResourceData, m interface{}) er
 	}
 
 	if _, err = client.Protectiongroups.SetProtectiongroup(d.Id(), retentionData); err != nil {
-		return err
+		return diag.FromErr(err)
 	} else {
 		for k, v := range retentionData {
 			d.Set(k, v)
@@ -273,7 +276,7 @@ func resourcePureProtectiongroupCreate(d *schema.ResourceData, m interface{}) er
 	}
 
 	if _, err = client.Protectiongroups.SetProtectiongroup(d.Id(), scheduleData); err != nil {
-		return err
+		return diag.FromErr(err)
 	} else {
 		for k, v := range scheduleData {
 			d.Set(k, v)
@@ -283,11 +286,11 @@ func resourcePureProtectiongroupCreate(d *schema.ResourceData, m interface{}) er
 	if replicateEnabled, ok := d.GetOk("replicate_enabled"); ok {
 		if replicateEnabled.(bool) {
 			if _, err = client.Protectiongroups.EnablePgroupReplication(d.Id()); err != nil {
-				return err
+				return diag.FromErr(err)
 			}
 		} else {
 			if _, err = client.Protectiongroups.DisablePgroupReplication(d.Id()); err != nil {
-				return err
+				return diag.FromErr(err)
 			}
 		}
 		d.Set("replicate_enabled", replicateEnabled.(bool))
@@ -296,20 +299,20 @@ func resourcePureProtectiongroupCreate(d *schema.ResourceData, m interface{}) er
 	if snapEnabled, ok := d.GetOk("snap_enabled"); ok {
 		if snapEnabled.(bool) {
 			if _, err = client.Protectiongroups.EnablePgroupSnapshots(d.Id()); err != nil {
-				return err
+				return diag.FromErr(err)
 			}
 		} else {
 			if _, err = client.Protectiongroups.DisablePgroupSnapshots(d.Id()); err != nil {
-				return err
+				return diag.FromErr(err)
 			}
 		}
 		d.Set("snap_enabled", snapEnabled.(bool))
 	}
 
-	return resourcePureProtectiongroupRead(d, m)
+	return resourcePureProtectiongroupRead(ctx, d, m)
 }
 
-func resourcePureProtectiongroupRead(d *schema.ResourceData, m interface{}) error {
+func resourcePureProtectiongroupRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	client := m.(*flasharray.Client)
 
 	var p *flasharray.Protectiongroup
@@ -351,7 +354,7 @@ func resourcePureProtectiongroupRead(d *schema.ResourceData, m interface{}) erro
 	return nil
 }
 
-func resourcePureProtectiongroupUpdate(d *schema.ResourceData, m interface{}) error {
+func resourcePureProtectiongroupUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 
 	var pgroup *flasharray.Protectiongroup
 	var err error
@@ -359,7 +362,7 @@ func resourcePureProtectiongroupUpdate(d *schema.ResourceData, m interface{}) er
 
 	if d.HasChange("name") {
 		if pgroup, err = client.Protectiongroups.RenameProtectiongroup(pgroup.Name, d.Get("name").(string)); err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		d.SetId(pgroup.Name)
 		d.Set("name", pgroup.Name)
@@ -400,7 +403,7 @@ func resourcePureProtectiongroupUpdate(d *schema.ResourceData, m interface{}) er
 
 	if len(data) > 0 {
 		if _, err = client.Protectiongroups.SetProtectiongroup(d.Id(), data); err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
 	if val, ok := data["hostlist"]; ok {
@@ -443,7 +446,7 @@ func resourcePureProtectiongroupUpdate(d *schema.ResourceData, m interface{}) er
 
 	if len(retentionData) > 0 {
 		if _, err = client.Protectiongroups.SetProtectiongroup(d.Id(), retentionData); err != nil {
-			return err
+			return diag.FromErr(err)
 		} else {
 			for k, v := range retentionData {
 				d.Set(k, v)
@@ -475,7 +478,7 @@ func resourcePureProtectiongroupUpdate(d *schema.ResourceData, m interface{}) er
 
 	if len(scheduleData) > 0 {
 		if _, err = client.Protectiongroups.SetProtectiongroup(d.Id(), scheduleData); err != nil {
-			return err
+			return diag.FromErr(err)
 		} else {
 			for k, v := range scheduleData {
 				d.Set(k, v)
@@ -486,11 +489,11 @@ func resourcePureProtectiongroupUpdate(d *schema.ResourceData, m interface{}) er
 	if d.HasChange("replicate_enabled") {
 		if d.Get("replicate_enabled").(bool) {
 			if _, err = client.Protectiongroups.EnablePgroupReplication(d.Id()); err != nil {
-				return err
+				return diag.FromErr(err)
 			}
 		} else {
 			if _, err = client.Protectiongroups.DisablePgroupReplication(d.Id()); err != nil {
-				return err
+				return diag.FromErr(err)
 			}
 		}
 		d.Set("replicate_enabled", d.Get("replicate_enabled").(bool))
@@ -499,25 +502,25 @@ func resourcePureProtectiongroupUpdate(d *schema.ResourceData, m interface{}) er
 	if d.HasChange("snap_enabled") {
 		if d.Get("snap_enabled").(bool) {
 			if _, err = client.Protectiongroups.EnablePgroupSnapshots(d.Id()); err != nil {
-				return err
+				return diag.FromErr(err)
 			}
 		} else {
 			if _, err = client.Protectiongroups.DisablePgroupSnapshots(d.Id()); err != nil {
-				return err
+				return diag.FromErr(err)
 			}
 		}
 		d.Set("snap_enabled", d.Get("snap_enabled").(bool))
 	}
 
-	return resourcePureProtectiongroupRead(d, m)
+	return resourcePureProtectiongroupRead(ctx, d, m)
 }
 
-func resourcePureProtectiongroupDelete(d *schema.ResourceData, m interface{}) error {
+func resourcePureProtectiongroupDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	client := m.(*flasharray.Client)
 
 	_, err := client.Protectiongroups.DestroyProtectiongroup(d.Id())
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.SetId("")
