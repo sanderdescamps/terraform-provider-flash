@@ -27,6 +27,7 @@ website/node_modules
 dist
 
 website/vendor
+vendor.tar
 
 # Test exclusions
 !command/test-fixtures/**/*.tfstate
@@ -41,3 +42,10 @@ website/vendor
 
 # .tfvars files
 *.tfvars
+
+# vscode files
+.vscode
+
+# builds
+terraform-provider-flash_*
+terraform-provider-flash

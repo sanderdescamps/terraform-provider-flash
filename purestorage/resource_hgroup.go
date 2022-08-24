@@ -17,26 +17,29 @@
 package purestorage
 
 import (
+	"context"
+
 	"github.com/devans10/pugo/flasharray"
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourcePureHostgroup() *schema.Resource {
 	return &schema.Resource{
-		Create: resourcePureHostgroupCreate,
-		Read:   resourcePureHostgroupRead,
-		Update: resourcePureHostgroupUpdate,
-		Delete: resourcePureHostgroupDelete,
+		CreateContext: resourcePureHostgroupCreate,
+		ReadContext:   resourcePureHostgroupRead,
+		UpdateContext: resourcePureHostgroupUpdate,
+		DeleteContext: resourcePureHostgroupDelete,
 		Importer: &schema.ResourceImporter{
 			State: resourcePureHostgroupImport,
 		},
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"hosts": &schema.Schema{
+			"hosts": {
 				Type: schema.TypeList,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -44,7 +47,7 @@ func resourcePureHostgroup() *schema.Resource {
 				Optional: true,
 				Default:  nil,
 			},
-			"volume": &schema.Schema{
+			"volume": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Elem: &schema.Resource{
@@ -64,7 +67,7 @@ func resourcePureHostgroup() *schema.Resource {
 	}
 }
 
-func resourcePureHostgroupCreate(d *schema.ResourceData, m interface{}) error {
+func resourcePureHostgroupCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	client := m.(*flasharray.Client)
 	var hgroup *flasharray.Hostgroup
 	var err error
@@ -77,11 +80,11 @@ func resourcePureHostgroupCreate(d *schema.ResourceData, m interface{}) error {
 	}
 	data := map[string][]string{"hostlist": hosts}
 	if hgroup, err = client.Hostgroups.CreateHostgroup(d.Get("name").(string), data); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	d.SetId(hgroup.Name)
-	d.SetPartial("name")
-	d.SetPartial("hosts")
+	d.Set("name", d.Get("name").(string))
+	d.Set("hosts", hosts)
 
 	var connectedVolumes []string
 	if cv, ok := d.GetOk("connected_volumes"); ok {
@@ -98,16 +101,15 @@ func resourcePureHostgroupCreate(d *schema.ResourceData, m interface{}) error {
 				data["lun"] = vol["lun"].(int)
 			}
 			if _, err := client.Hostgroups.ConnectHostgroup(hgroup.Name, vol["vol"].(string), data); err != nil {
-				return err
+				return diag.FromErr(err)
 			}
 		}
 	}
 
-	d.Partial(false)
-	return resourcePureHostgroupRead(d, m)
+	return resourcePureHostgroupRead(ctx, d, m)
 }
 
-func resourcePureHostgroupRead(d *schema.ResourceData, m interface{}) error {
+func resourcePureHostgroupRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	client := m.(*flasharray.Client)
 
 	h, _ := client.Hostgroups.GetHostgroup(d.Id(), nil)
@@ -119,7 +121,7 @@ func resourcePureHostgroupRead(d *schema.ResourceData, m interface{}) error {
 
 	if volumes, _ := client.Hostgroups.ListHostgroupConnections(h.Name); volumes != nil {
 		if err := d.Set("volume", flattenHgroupVolume(volumes)); err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
 
@@ -128,19 +130,18 @@ func resourcePureHostgroupRead(d *schema.ResourceData, m interface{}) error {
 	return nil
 }
 
-func resourcePureHostgroupUpdate(d *schema.ResourceData, m interface{}) error {
-	d.Partial(true)
+func resourcePureHostgroupUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	client := m.(*flasharray.Client)
-	var h *flasharray.Hostgroup
+	var hgroup *flasharray.Hostgroup
 	var err error
 
 	if d.HasChange("name") {
-		if h, err = client.Hostgroups.RenameHostgroup(d.Id(), d.Get("name").(string)); err != nil {
-			return err
+		if hgroup, err = client.Hostgroups.RenameHostgroup(d.Id(), d.Get("name").(string)); err != nil {
+			return diag.FromErr(err)
 		}
-		d.SetId(h.Name)
+		d.SetId(hgroup.Name)
+		d.Set("name", d.Get("name").(string))
 	}
-	d.SetPartial("name")
 
 	if d.HasChange("hosts") {
 		var hosts []string
@@ -149,10 +150,9 @@ func resourcePureHostgroupUpdate(d *schema.ResourceData, m interface{}) error {
 		}
 		data := map[string][]string{"hostlist": hosts}
 		if _, err = client.Hostgroups.SetHostgroup(d.Id(), data); err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
-	d.SetPartial("hosts")
 
 	if d.HasChange("volume") {
 		o, n := d.GetChange("volume")
@@ -176,7 +176,7 @@ func resourcePureHostgroupUpdate(d *schema.ResourceData, m interface{}) error {
 					data["lun"] = vol["lun"].(int)
 				}
 				if _, err = client.Hostgroups.ConnectHostgroup(d.Id(), vol["vol"].(string), data); err != nil {
-					return err
+					return diag.FromErr(err)
 				}
 			}
 		}
@@ -185,24 +185,23 @@ func resourcePureHostgroupUpdate(d *schema.ResourceData, m interface{}) error {
 			for _, volume := range disconnectVolumes {
 				vol := volume.(map[string]interface{})
 				if _, err = client.Hostgroups.DisconnectHostgroup(d.Id(), vol["vol"].(string)); err != nil {
-					return err
+					return diag.FromErr(err)
 				}
 			}
 		}
 	}
 
-	d.Partial(false)
-	return resourcePureHostgroupRead(d, m)
+	return resourcePureHostgroupRead(ctx, d, m)
 }
 
-func resourcePureHostgroupDelete(d *schema.ResourceData, m interface{}) error {
+func resourcePureHostgroupDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	client := m.(*flasharray.Client)
 
 	volumes := d.Get("volume").(*schema.Set).List()
 	for _, volume := range volumes {
 		vol := volume.(map[string]interface{})
 		if _, err := client.Hostgroups.DisconnectHostgroup(d.Id(), vol["vol"].(string)); err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
 
@@ -210,12 +209,12 @@ func resourcePureHostgroupDelete(d *schema.ResourceData, m interface{}) error {
 	data := map[string][]string{"hostlist": hosts}
 	_, err := client.Hostgroups.SetHostgroup(d.Id(), data)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	_, err = client.Hostgroups.DeleteHostgroup(d.Id())
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.SetId("")

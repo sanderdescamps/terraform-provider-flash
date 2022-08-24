@@ -1,12 +1,26 @@
 TEST?=$$(go list ./... |grep -v 'vendor')
 GOFMT_FILES?=$$(find . -name '*.go' |grep -v vendor)
-PKG_NAME=purestorage
+PROVIDER_NAME=flash
+VERSION=1.1.3
+ARCH=amd64
+OS=linux
+OS_ARCH=${OS}_${ARCH}
+PKG_NAME=terraform-provider-${PROVIDER_NAME}
+TF_PLUGIN_PATH=~/.terraform.d/plugins/localdomain/provider/${PROVIDER_NAME}/${VERSION}/${OS}_${ARCH}
 
 default: build
 
-build: fmtcheck
-	go install
+.build: 
+	GOOS=${OS} GOARCH=${ARCH} go build -o ${PKG_NAME}_${VERSION}_${OS_ARCH}
 
+.install: 
+	mkdir -p ${TF_PLUGIN_PATH}
+	cp ${PKG_NAME}_${VERSION}_${OS_ARCH} ${TF_PLUGIN_PATH}/${PKG_NAME}
+
+build: fmtcheck .build
+	
+install: build .install
+	
 test: fmtcheck
 	go test -i $(TEST) || exit 1
 	echo $(TEST) | \

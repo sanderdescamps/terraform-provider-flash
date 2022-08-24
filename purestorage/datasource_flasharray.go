@@ -17,24 +17,27 @@
 package purestorage
 
 import (
+	"context"
+
 	"github.com/devans10/pugo/flasharray"
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func dataSourcePureFlashArray() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourcePureFlashArrayRead,
+		ReadContext: dataSourcePureFlashArrayRead,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"version": &schema.Schema{
+			"version": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"revision": &schema.Schema{
+			"revision": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
@@ -42,12 +45,12 @@ func dataSourcePureFlashArray() *schema.Resource {
 	}
 }
 
-func dataSourcePureFlashArrayRead(d *schema.ResourceData, m interface{}) error {
+func dataSourcePureFlashArrayRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	client := m.(*flasharray.Client)
 
 	flasharray, err := client.Array.Get(nil)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.SetId(flasharray.ID)

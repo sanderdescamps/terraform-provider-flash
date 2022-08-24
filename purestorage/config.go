@@ -21,7 +21,7 @@ import (
 	"log"
 
 	"github.com/devans10/pugo/flasharray"
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 // Config is the configuration for the Purestorage FlashArray Go Client.
@@ -82,7 +82,6 @@ func NewConfig(d *schema.ResourceData) (*Config, error) {
 }
 
 // Client returns a new client for accessing flasharray.
-//
 func (c *Config) Client() (*flasharray.Client, error) {
 
 	client, err := flasharray.NewClient(c.Target, c.Username, c.Password, c.APIToken, c.RestVersion, c.VerifyHTTPS, c.SslCert, c.UserAgent, c.RequestKwargs)

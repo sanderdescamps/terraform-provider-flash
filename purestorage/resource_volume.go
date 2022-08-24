@@ -17,44 +17,45 @@
 package purestorage
 
 import (
-	"fmt"
+	"context"
 	"log"
 
 	"github.com/devans10/pugo/flasharray"
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourcePureVolume() *schema.Resource {
 	return &schema.Resource{
-		Create: resourcePureVolumeCreate,
-		Read:   resourcePureVolumeRead,
-		Update: resourcePureVolumeUpdate,
-		Delete: resourcePureVolumeDelete,
+		CreateContext: resourcePureVolumeCreate,
+		ReadContext:   resourcePureVolumeRead,
+		UpdateContext: resourcePureVolumeUpdate,
+		DeleteContext: resourcePureVolumeDelete,
 		Importer: &schema.ResourceImporter{
 			State: resourcePureVolumeImport,
 		},
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"size": &schema.Schema{
+			"size": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Computed: true,
 			},
-			"source": &schema.Schema{
+			"source": {
 				Type:     schema.TypeString,
 				Required: false,
 				Optional: true,
 				Computed: true,
 			},
-			"serial": &schema.Schema{
+			"serial": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"created": &schema.Schema{
+			"created": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
@@ -68,7 +69,7 @@ func resourcePureVolume() *schema.Resource {
 // If the size parameter is provided, a new Volume of that size will be created.
 // If the source parameter is provided, a new Volume that is a copy of the source
 // volume will be created.
-func resourcePureVolumeCreate(d *schema.ResourceData, m interface{}) error {
+func resourcePureVolumeCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	client := m.(*flasharray.Client)
 
 	var v *flasharray.Volume
@@ -79,20 +80,20 @@ func resourcePureVolumeCreate(d *schema.ResourceData, m interface{}) error {
 	if s.(string) == "" {
 		z, _ := d.GetOk("size")
 		if v, err = client.Volumes.CreateVolume(n.(string), z.(int)); err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	} else {
 		if v, err = client.Volumes.CopyVolume(n.(string), s.(string), false); err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
 
 	d.SetId(v.Name)
-	return resourcePureVolumeRead(d, m)
+	return resourcePureVolumeRead(ctx, d, m)
 }
 
 // resourcePureVolumeRead sets the values for the given volume ID
-func resourcePureVolumeRead(d *schema.ResourceData, m interface{}) error {
+func resourcePureVolumeRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	client := m.(*flasharray.Client)
 
 	vol, _ := client.Volumes.GetVolume(d.Id(), nil)
@@ -119,7 +120,7 @@ func resourcePureVolumeRead(d *schema.ResourceData, m interface{}) error {
 // If a new size is provided, it must be larger than the current size.  Only
 // extending volumes is supported at this time, since truncating volumes can
 // lead to data loss.
-func resourcePureVolumeUpdate(d *schema.ResourceData, m interface{}) error {
+func resourcePureVolumeUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	d.Partial(true)
 
 	client := m.(*flasharray.Client)
@@ -128,51 +129,50 @@ func resourcePureVolumeUpdate(d *schema.ResourceData, m interface{}) error {
 
 	if d.HasChange("name") {
 		if v, err = client.Volumes.RenameVolume(d.Id(), d.Get("name").(string)); err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		d.SetId(v.Name)
+		d.Set("name", d.Get("name").(string))
 	}
-	d.SetPartial("name")
 
 	if d.HasChange("source") {
 		snapshot, err := client.Volumes.CreateSnapshot(d.Id(), "")
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		log.Printf("[INFO] Created volume snapshot %s before overwriting volume %s.", snapshot.Name, d.Id())
 		if _, err = client.Volumes.CopyVolume(d.Id(), d.Get("source").(string), true); err != nil {
-			return err
+			return diag.FromErr(err)
 		}
+		d.Set("source", d.Get("source").(string))
 	}
-	d.SetPartial("source")
 
 	if d.HasChange("size") {
 		oldVol, err := client.Volumes.GetVolume(d.Id(), nil)
 		z, _ := d.GetOk("size")
 		if z.(int) > oldVol.Size {
 			if _, err = client.Volumes.ExtendVolume(d.Id(), z.(int)); err != nil {
-				return err
+				return diag.FromErr(err)
 			}
 		}
 		if z.(int) < oldVol.Size {
-			return fmt.Errorf("error: New size must be larger than current size. Truncating volumes not supported")
+			return diag.Errorf("error: New size must be larger than current size. Truncating volumes not supported")
 		}
 	}
-	d.Partial(false)
 
-	return resourcePureVolumeRead(d, m)
+	return resourcePureVolumeRead(ctx, d, m)
 }
 
 // resourcePureVolumeDelete will delete the volume specified.
 // The volume will NOT be eradicated. This is to reduce the chance of
 // data loss.  The volume's timer will start for 24 hours, at that time
 // the volume will be eradicated.
-func resourcePureVolumeDelete(d *schema.ResourceData, m interface{}) error {
+func resourcePureVolumeDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	client := m.(*flasharray.Client)
 	_, err := client.Volumes.DeleteVolume(d.Id())
 
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.SetId("")

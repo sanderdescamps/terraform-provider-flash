@@ -17,63 +17,62 @@
 package purestorage
 
 import (
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 // Provider is the terraform resource provider called by main.go
-func Provider() terraform.ResourceProvider {
+func Provider() *schema.Provider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
-			"username": &schema.Schema{
+			"username": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("PURE_USERNAME", ""),
 			},
 
-			"password": &schema.Schema{
+			"password": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("PURE_PASSWORD", ""),
 			},
 
-			"api_token": &schema.Schema{
+			"api_token": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("PURE_APITOKEN", ""),
 			},
 
-			"target": &schema.Schema{
+			"target": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("PURE_TARGET", ""),
 			},
 
-			"rest_version": &schema.Schema{
+			"rest_version": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "",
 			},
 
-			"verify_https": &schema.Schema{
+			"verify_https": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  false,
 			},
 
-			"ssl_cert": &schema.Schema{
+			"ssl_cert": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  false,
 			},
 
-			"user_agent": &schema.Schema{
+			"user_agent": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "Terraform",
 			},
 
-			"request_kwargs": &schema.Schema{
+			"request_kwargs": {
 				Type:     schema.TypeMap,
 				Optional: true,
 				Default:  nil,

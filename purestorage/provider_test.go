@@ -18,42 +18,37 @@ package purestorage
 
 import (
 	"os"
+	"sync"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/terraform"
-	"github.com/terraform-providers/terraform-provider-null/null"
-	"github.com/terraform-providers/terraform-provider-random/random"
-	"github.com/terraform-providers/terraform-provider-template/template"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-var testAccProviders map[string]terraform.ResourceProvider
+var testInitOnce = sync.Once{}
+
+var testAccProviders map[string]*schema.Provider
 var testAccProvider *schema.Provider
-var testAccNullProvider *schema.Provider
-var testAccRandomProvider *schema.Provider
-var testAccTemplateProvider *schema.Provider
 
 func init() {
-	testAccProvider = Provider().(*schema.Provider)
-	testAccNullProvider = null.Provider().(*schema.Provider)
-	testAccRandomProvider = random.Provider().(*schema.Provider)
-	testAccTemplateProvider = template.Provider().(*schema.Provider)
-	testAccProviders = map[string]terraform.ResourceProvider{
-		"purestorage": testAccProvider,
-		"null":        testAccNullProvider,
-		"random":      testAccRandomProvider,
-		"template":    testAccTemplateProvider,
-	}
+	testInitOnce.Do(
+		func() {
+			testAccProvider = Provider()
+			testAccProviders = map[string]*schema.Provider{
+				"purestorage": testAccProvider,
+			}
+		},
+	)
+
 }
 
 func TestProvider(t *testing.T) {
-	if err := Provider().(*schema.Provider).InternalValidate(); err != nil {
+	if err := Provider().InternalValidate(); err != nil {
 		t.Fatalf("err: %s", err)
 	}
 }
 
 func TestProvider_impl(t *testing.T) {
-	var _ terraform.ResourceProvider = Provider()
+	var _ *schema.Provider = Provider()
 }
 
 func testAccPreCheck(t *testing.T) {

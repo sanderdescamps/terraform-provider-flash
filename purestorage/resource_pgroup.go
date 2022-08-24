@@ -17,26 +17,29 @@
 package purestorage
 
 import (
+	"context"
+
 	"github.com/devans10/pugo/flasharray"
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourcePureProtectiongroup() *schema.Resource {
 	return &schema.Resource{
-		Create: resourcePureProtectiongroupCreate,
-		Read:   resourcePureProtectiongroupRead,
-		Update: resourcePureProtectiongroupUpdate,
-		Delete: resourcePureProtectiongroupDelete,
+		CreateContext: resourcePureProtectiongroupCreate,
+		ReadContext:   resourcePureProtectiongroupRead,
+		UpdateContext: resourcePureProtectiongroupUpdate,
+		DeleteContext: resourcePureProtectiongroupDelete,
 		Importer: &schema.ResourceImporter{
 			State: resourcePureProtectiongroupImport,
 		},
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"hosts": &schema.Schema{
+			"hosts": {
 				Type: schema.TypeList,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -45,7 +48,7 @@ func resourcePureProtectiongroup() *schema.Resource {
 				Optional:      true,
 				Default:       nil,
 			},
-			"volumes": &schema.Schema{
+			"volumes": {
 				Type: schema.TypeList,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -54,7 +57,7 @@ func resourcePureProtectiongroup() *schema.Resource {
 				Optional:      true,
 				Default:       nil,
 			},
-			"hgroups": &schema.Schema{
+			"hgroups": {
 				Type: schema.TypeList,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -63,7 +66,7 @@ func resourcePureProtectiongroup() *schema.Resource {
 				Optional:      true,
 				Default:       nil,
 			},
-			"targets": &schema.Schema{
+			"targets": {
 				Type: schema.TypeList,
 				Elem: &schema.Schema{
 					Type: schema.TypeMap,
@@ -71,84 +74,84 @@ func resourcePureProtectiongroup() *schema.Resource {
 				Optional: true,
 				Default:  nil,
 			},
-			"source": &schema.Schema{
+			"source": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"all_for": &schema.Schema{
+			"all_for": {
 				Type:        schema.TypeInt,
 				Description: "Modifies the retention policy of the protection group. Specifies the length of time to keep the snapshots on the source array before they are eradicated.",
 				Optional:    true,
 				Default:     86400,
 			},
-			"days": &schema.Schema{
+			"days": {
 				Type:        schema.TypeInt,
 				Description: "Modifies the retention policy of the protection group. Specifies the number of days to keep the per_day snapshots beyond the all_for period before they are eradicated.",
 				Optional:    true,
 				Default:     7,
 			},
-			"per_day": &schema.Schema{
+			"per_day": {
 				Type:        schema.TypeInt,
 				Description: "Modifies the retention policy of the protection group. Specifies the number of per_day snapshots to keep beyond the all_for period.",
 				Optional:    true,
 				Default:     4,
 			},
-			"replicate_at": &schema.Schema{
+			"replicate_at": {
 				Type:        schema.TypeInt,
 				Optional:    true,
 				Description: "Modifies the replication schedule of the protection group. Specifies the preferred time, on the hour, at which to replicate the snapshots.",
 				Default:     nil,
 			},
-			"replicate_blackout": &schema.Schema{
+			"replicate_blackout": {
 				Type:        schema.TypeMap,
 				Description: "Modifies the replication schedule of the protection group. Specifies the range of time at which to suspend replication.",
 				Optional:    true,
 				Default:     nil,
 			},
-			"replicate_enabled": &schema.Schema{
+			"replicate_enabled": {
 				Type:        schema.TypeBool,
 				Description: "Used to enable (true) or disable (false) the protection group replication schedule.",
 				Optional:    true,
 				Default:     false,
 			},
-			"replicate_frequency": &schema.Schema{
+			"replicate_frequency": {
 				Type:        schema.TypeInt,
 				Description: "Modifies the replication schedule of the protection group. Specifies the replication frequency.",
 				Optional:    true,
 				Default:     14400,
 			},
-			"snap_at": &schema.Schema{
+			"snap_at": {
 				Type:        schema.TypeInt,
 				Description: "Modifies the snapshot schedule of the protection group. Specifies the preferred time, on the hour, at which to generate the snapshot.",
 				Optional:    true,
 				Default:     nil,
 			},
-			"snap_enabled": &schema.Schema{
+			"snap_enabled": {
 				Type:        schema.TypeBool,
 				Description: "Used to enable (true) or disable (false) the protection group snapshot schedule.",
 				Optional:    true,
 				Default:     false,
 			},
-			"snap_frequency": &schema.Schema{
+			"snap_frequency": {
 				Type:        schema.TypeInt,
 				Description: "Modifies the snapshot schedule of the protection group. Specifies the snapshot frequency.",
 				Optional:    true,
 				Default:     3600,
 			},
-			"target_all_for": &schema.Schema{
+			"target_all_for": {
 				Type:        schema.TypeInt,
 				Description: "Modifies the retention policy of the protection group. Specifies the length of time to keep the replicated snapshots on the targets.",
 				Optional:    true,
 				Default:     86400,
 			},
-			"target_days": &schema.Schema{
+			"target_days": {
 				Type:        schema.TypeInt,
 				Description: "Modifies the retention policy of the protection group. Specifies the number of days to keep the target_per_day replicated snapshots beyond the target_all_for period before they are eradicated.",
 				Optional:    true,
 				Default:     7,
 			},
-			"target_per_day": &schema.Schema{
+			"target_per_day": {
 				Type:        schema.TypeInt,
 				Description: "Modifies the retention policy of the protection group. Specifies the number of per_day replicated snapshots to keep beyond the target_all_for period.",
 				Optional:    true,
@@ -158,7 +161,7 @@ func resourcePureProtectiongroup() *schema.Resource {
 	}
 }
 
-func resourcePureProtectiongroupCreate(d *schema.ResourceData, m interface{}) error {
+func resourcePureProtectiongroupCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	d.Partial(true)
 
 	client := m.(*flasharray.Client)
@@ -200,14 +203,22 @@ func resourcePureProtectiongroupCreate(d *schema.ResourceData, m interface{}) er
 	}
 
 	if pgroup, err = client.Protectiongroups.CreateProtectiongroup(d.Get("name").(string), data); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	d.SetId(pgroup.Name)
-	d.SetPartial("name")
-	d.SetPartial("hosts")
-	d.SetPartial("volumes")
-	d.SetPartial("hgroups")
-	d.SetPartial("targets")
+	d.Set("name", d.Get("name").(string))
+	if val, ok := data["hostlist"]; ok {
+		d.Set("hosts", val)
+	}
+	if val, ok := data["vollist"]; ok {
+		d.Set("volumes", val)
+	}
+	if val, ok := data["hgrouplist"]; ok {
+		d.Set("hgroups", val)
+	}
+	if val, ok := data["targetlist"]; ok {
+		d.Set("targets", val)
+	}
 
 	retentionData := make(map[string]interface{})
 	if allFor, ok := d.GetOk("all_for"); ok {
@@ -235,14 +246,12 @@ func resourcePureProtectiongroupCreate(d *schema.ResourceData, m interface{}) er
 	}
 
 	if _, err = client.Protectiongroups.SetProtectiongroup(d.Id(), retentionData); err != nil {
-		return err
+		return diag.FromErr(err)
+	} else {
+		for k, v := range retentionData {
+			d.Set(k, v)
+		}
 	}
-	d.SetPartial("all_for")
-	d.SetPartial("days")
-	d.SetPartial("per_day")
-	d.SetPartial("target_all_for")
-	d.SetPartial("target_days")
-	d.SetPartial("target_per_day")
 
 	scheduleData := make(map[string]interface{})
 
@@ -267,44 +276,43 @@ func resourcePureProtectiongroupCreate(d *schema.ResourceData, m interface{}) er
 	}
 
 	if _, err = client.Protectiongroups.SetProtectiongroup(d.Id(), scheduleData); err != nil {
-		return err
+		return diag.FromErr(err)
+	} else {
+		for k, v := range scheduleData {
+			d.Set(k, v)
+		}
 	}
-	d.SetPartial("replicate_at")
-	d.SetPartial("replicate_blackout")
-	d.SetPartial("replicate_frequency")
-	d.SetPartial("snap_at")
-	d.SetPartial("snap_frequency")
 
 	if replicateEnabled, ok := d.GetOk("replicate_enabled"); ok {
 		if replicateEnabled.(bool) {
 			if _, err = client.Protectiongroups.EnablePgroupReplication(d.Id()); err != nil {
-				return err
+				return diag.FromErr(err)
 			}
 		} else {
 			if _, err = client.Protectiongroups.DisablePgroupReplication(d.Id()); err != nil {
-				return err
+				return diag.FromErr(err)
 			}
 		}
+		d.Set("replicate_enabled", replicateEnabled.(bool))
 	}
-	d.SetPartial("replicate_enabled")
 
 	if snapEnabled, ok := d.GetOk("snap_enabled"); ok {
 		if snapEnabled.(bool) {
 			if _, err = client.Protectiongroups.EnablePgroupSnapshots(d.Id()); err != nil {
-				return err
+				return diag.FromErr(err)
 			}
 		} else {
 			if _, err = client.Protectiongroups.DisablePgroupSnapshots(d.Id()); err != nil {
-				return err
+				return diag.FromErr(err)
 			}
 		}
+		d.Set("snap_enabled", snapEnabled.(bool))
 	}
-	d.Partial(false)
 
-	return resourcePureProtectiongroupRead(d, m)
+	return resourcePureProtectiongroupRead(ctx, d, m)
 }
 
-func resourcePureProtectiongroupRead(d *schema.ResourceData, m interface{}) error {
+func resourcePureProtectiongroupRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	client := m.(*flasharray.Client)
 
 	var p *flasharray.Protectiongroup
@@ -346,8 +354,7 @@ func resourcePureProtectiongroupRead(d *schema.ResourceData, m interface{}) erro
 	return nil
 }
 
-func resourcePureProtectiongroupUpdate(d *schema.ResourceData, m interface{}) error {
-	d.Partial(true)
+func resourcePureProtectiongroupUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 
 	var pgroup *flasharray.Protectiongroup
 	var err error
@@ -355,11 +362,11 @@ func resourcePureProtectiongroupUpdate(d *schema.ResourceData, m interface{}) er
 
 	if d.HasChange("name") {
 		if pgroup, err = client.Protectiongroups.RenameProtectiongroup(pgroup.Name, d.Get("name").(string)); err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		d.SetId(pgroup.Name)
+		d.Set("name", pgroup.Name)
 	}
-	d.SetPartial("name")
 
 	data := make(map[string]interface{})
 	if d.HasChange("hosts") {
@@ -396,13 +403,21 @@ func resourcePureProtectiongroupUpdate(d *schema.ResourceData, m interface{}) er
 
 	if len(data) > 0 {
 		if _, err = client.Protectiongroups.SetProtectiongroup(d.Id(), data); err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
-	d.SetPartial("hosts")
-	d.SetPartial("volumes")
-	d.SetPartial("hgroups")
-	d.SetPartial("targets")
+	if val, ok := data["hostlist"]; ok {
+		d.Set("hosts", val)
+	}
+	if val, ok := data["vollist"]; ok {
+		d.Set("volumes", val)
+	}
+	if val, ok := data["hgrouplist"]; ok {
+		d.Set("hgroups", val)
+	}
+	if val, ok := data["targetlist"]; ok {
+		d.Set("targets", val)
+	}
 
 	retentionData := make(map[string]interface{})
 	if d.HasChange("all_for") {
@@ -431,15 +446,13 @@ func resourcePureProtectiongroupUpdate(d *schema.ResourceData, m interface{}) er
 
 	if len(retentionData) > 0 {
 		if _, err = client.Protectiongroups.SetProtectiongroup(d.Id(), retentionData); err != nil {
-			return err
+			return diag.FromErr(err)
+		} else {
+			for k, v := range retentionData {
+				d.Set(k, v)
+			}
 		}
 	}
-	d.SetPartial("all_for")
-	d.SetPartial("days")
-	d.SetPartial("per_day")
-	d.SetPartial("target_all_for")
-	d.SetPartial("target_days")
-	d.SetPartial("target_per_day")
 
 	scheduleData := make(map[string]interface{})
 
@@ -465,50 +478,49 @@ func resourcePureProtectiongroupUpdate(d *schema.ResourceData, m interface{}) er
 
 	if len(scheduleData) > 0 {
 		if _, err = client.Protectiongroups.SetProtectiongroup(d.Id(), scheduleData); err != nil {
-			return err
+			return diag.FromErr(err)
+		} else {
+			for k, v := range scheduleData {
+				d.Set(k, v)
+			}
 		}
 	}
-	d.SetPartial("replicate_at")
-	d.SetPartial("replicate_blackout")
-	d.SetPartial("replicate_frequency")
-	d.SetPartial("snap_at")
-	d.SetPartial("snap_frequency")
 
 	if d.HasChange("replicate_enabled") {
 		if d.Get("replicate_enabled").(bool) {
 			if _, err = client.Protectiongroups.EnablePgroupReplication(d.Id()); err != nil {
-				return err
+				return diag.FromErr(err)
 			}
 		} else {
 			if _, err = client.Protectiongroups.DisablePgroupReplication(d.Id()); err != nil {
-				return err
+				return diag.FromErr(err)
 			}
 		}
+		d.Set("replicate_enabled", d.Get("replicate_enabled").(bool))
 	}
-	d.SetPartial("replicate_enabled")
 
 	if d.HasChange("snap_enabled") {
 		if d.Get("snap_enabled").(bool) {
 			if _, err = client.Protectiongroups.EnablePgroupSnapshots(d.Id()); err != nil {
-				return err
+				return diag.FromErr(err)
 			}
 		} else {
 			if _, err = client.Protectiongroups.DisablePgroupSnapshots(d.Id()); err != nil {
-				return err
+				return diag.FromErr(err)
 			}
 		}
+		d.Set("snap_enabled", d.Get("snap_enabled").(bool))
 	}
 
-	d.Partial(false)
-	return resourcePureProtectiongroupRead(d, m)
+	return resourcePureProtectiongroupRead(ctx, d, m)
 }
 
-func resourcePureProtectiongroupDelete(d *schema.ResourceData, m interface{}) error {
+func resourcePureProtectiongroupDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	client := m.(*flasharray.Client)
 
 	_, err := client.Protectiongroups.DestroyProtectiongroup(d.Id())
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.SetId("")
