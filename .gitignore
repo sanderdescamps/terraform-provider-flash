@@ -27,6 +27,7 @@ website/node_modules
 dist
 
 website/vendor
+vendor.tar
 
 # Test exclusions
 !command/test-fixtures/**/*.tfstate
@@ -47,3 +48,4 @@ website/vendor
 
 # builds
 terraform-provider-flash_*
+terraform-provider-flash
