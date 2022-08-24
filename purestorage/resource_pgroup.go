@@ -18,7 +18,7 @@ package purestorage
 
 import (
 	"github.com/devans10/pugo/flasharray"
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourcePureProtectiongroup() *schema.Resource {
@@ -32,11 +32,11 @@ func resourcePureProtectiongroup() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"hosts": &schema.Schema{
+			"hosts": {
 				Type: schema.TypeList,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -45,7 +45,7 @@ func resourcePureProtectiongroup() *schema.Resource {
 				Optional:      true,
 				Default:       nil,
 			},
-			"volumes": &schema.Schema{
+			"volumes": {
 				Type: schema.TypeList,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -54,7 +54,7 @@ func resourcePureProtectiongroup() *schema.Resource {
 				Optional:      true,
 				Default:       nil,
 			},
-			"hgroups": &schema.Schema{
+			"hgroups": {
 				Type: schema.TypeList,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -63,7 +63,7 @@ func resourcePureProtectiongroup() *schema.Resource {
 				Optional:      true,
 				Default:       nil,
 			},
-			"targets": &schema.Schema{
+			"targets": {
 				Type: schema.TypeList,
 				Elem: &schema.Schema{
 					Type: schema.TypeMap,
@@ -71,84 +71,84 @@ func resourcePureProtectiongroup() *schema.Resource {
 				Optional: true,
 				Default:  nil,
 			},
-			"source": &schema.Schema{
+			"source": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"all_for": &schema.Schema{
+			"all_for": {
 				Type:        schema.TypeInt,
 				Description: "Modifies the retention policy of the protection group. Specifies the length of time to keep the snapshots on the source array before they are eradicated.",
 				Optional:    true,
 				Default:     86400,
 			},
-			"days": &schema.Schema{
+			"days": {
 				Type:        schema.TypeInt,
 				Description: "Modifies the retention policy of the protection group. Specifies the number of days to keep the per_day snapshots beyond the all_for period before they are eradicated.",
 				Optional:    true,
 				Default:     7,
 			},
-			"per_day": &schema.Schema{
+			"per_day": {
 				Type:        schema.TypeInt,
 				Description: "Modifies the retention policy of the protection group. Specifies the number of per_day snapshots to keep beyond the all_for period.",
 				Optional:    true,
 				Default:     4,
 			},
-			"replicate_at": &schema.Schema{
+			"replicate_at": {
 				Type:        schema.TypeInt,
 				Optional:    true,
 				Description: "Modifies the replication schedule of the protection group. Specifies the preferred time, on the hour, at which to replicate the snapshots.",
 				Default:     nil,
 			},
-			"replicate_blackout": &schema.Schema{
+			"replicate_blackout": {
 				Type:        schema.TypeMap,
 				Description: "Modifies the replication schedule of the protection group. Specifies the range of time at which to suspend replication.",
 				Optional:    true,
 				Default:     nil,
 			},
-			"replicate_enabled": &schema.Schema{
+			"replicate_enabled": {
 				Type:        schema.TypeBool,
 				Description: "Used to enable (true) or disable (false) the protection group replication schedule.",
 				Optional:    true,
 				Default:     false,
 			},
-			"replicate_frequency": &schema.Schema{
+			"replicate_frequency": {
 				Type:        schema.TypeInt,
 				Description: "Modifies the replication schedule of the protection group. Specifies the replication frequency.",
 				Optional:    true,
 				Default:     14400,
 			},
-			"snap_at": &schema.Schema{
+			"snap_at": {
 				Type:        schema.TypeInt,
 				Description: "Modifies the snapshot schedule of the protection group. Specifies the preferred time, on the hour, at which to generate the snapshot.",
 				Optional:    true,
 				Default:     nil,
 			},
-			"snap_enabled": &schema.Schema{
+			"snap_enabled": {
 				Type:        schema.TypeBool,
 				Description: "Used to enable (true) or disable (false) the protection group snapshot schedule.",
 				Optional:    true,
 				Default:     false,
 			},
-			"snap_frequency": &schema.Schema{
+			"snap_frequency": {
 				Type:        schema.TypeInt,
 				Description: "Modifies the snapshot schedule of the protection group. Specifies the snapshot frequency.",
 				Optional:    true,
 				Default:     3600,
 			},
-			"target_all_for": &schema.Schema{
+			"target_all_for": {
 				Type:        schema.TypeInt,
 				Description: "Modifies the retention policy of the protection group. Specifies the length of time to keep the replicated snapshots on the targets.",
 				Optional:    true,
 				Default:     86400,
 			},
-			"target_days": &schema.Schema{
+			"target_days": {
 				Type:        schema.TypeInt,
 				Description: "Modifies the retention policy of the protection group. Specifies the number of days to keep the target_per_day replicated snapshots beyond the target_all_for period before they are eradicated.",
 				Optional:    true,
 				Default:     7,
 			},
-			"target_per_day": &schema.Schema{
+			"target_per_day": {
 				Type:        schema.TypeInt,
 				Description: "Modifies the retention policy of the protection group. Specifies the number of per_day replicated snapshots to keep beyond the target_all_for period.",
 				Optional:    true,
@@ -247,7 +247,7 @@ func resourcePureProtectiongroupCreate(d *schema.ResourceData, m interface{}) er
 	} else {
 		for k, v := range retentionData {
 			d.Set(k, v)
-	}
+		}
 	}
 
 	scheduleData := make(map[string]interface{})
@@ -277,7 +277,7 @@ func resourcePureProtectiongroupCreate(d *schema.ResourceData, m interface{}) er
 	} else {
 		for k, v := range scheduleData {
 			d.Set(k, v)
-	}
+		}
 	}
 
 	if replicateEnabled, ok := d.GetOk("replicate_enabled"); ok {
@@ -447,8 +447,8 @@ func resourcePureProtectiongroupUpdate(d *schema.ResourceData, m interface{}) er
 		} else {
 			for k, v := range retentionData {
 				d.Set(k, v)
+			}
 		}
-	}
 	}
 
 	scheduleData := make(map[string]interface{})
@@ -479,8 +479,8 @@ func resourcePureProtectiongroupUpdate(d *schema.ResourceData, m interface{}) er
 		} else {
 			for k, v := range scheduleData {
 				d.Set(k, v)
+			}
 		}
-	}
 	}
 
 	if d.HasChange("replicate_enabled") {

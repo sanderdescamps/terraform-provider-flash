@@ -18,8 +18,8 @@ package purestorage
 
 import (
 	"github.com/devans10/pugo/flasharray"
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourcePureHost() *schema.Resource {
@@ -32,13 +32,13 @@ func resourcePureHost() *schema.Resource {
 			State: resourcePureHostImport,
 		},
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:        schema.TypeString,
 				Description: "Name of the host",
 				Required:    true,
 			},
-			"iqn": &schema.Schema{
-				Type:        schema.TypeList,
+			"iqn": {
+				Type:        schema.TypeSet,
 				Description: "List of iSCSI qualified names (IQNs) to the specified host.",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -46,8 +46,8 @@ func resourcePureHost() *schema.Resource {
 				Required: false,
 				Optional: true,
 			},
-			"wwn": &schema.Schema{
-				Type:        schema.TypeList,
+			"wwn": {
+				Type:        schema.TypeSet,
 				Description: "List of Fibre Channel worldwide names (WWNs) to the specified host.",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -55,8 +55,8 @@ func resourcePureHost() *schema.Resource {
 				Required: false,
 				Optional: true,
 			},
-			"nqn": &schema.Schema{
-				Type:        schema.TypeList,
+			"nqn": {
+				Type:        schema.TypeSet,
 				Description: "List of NVMeF qualified names (NQNs) to the specified host.",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -64,27 +64,27 @@ func resourcePureHost() *schema.Resource {
 				Required: false,
 				Optional: true,
 			},
-			"host_password": &schema.Schema{
+			"host_password": {
 				Type:        schema.TypeString,
 				Description: "Host password for CHAP authentication.",
 				Computed:    true,
 				Optional:    true,
 			},
-			"host_user": &schema.Schema{
+			"host_user": {
 				Type:        schema.TypeString,
 				Description: "Host username for CHAP authentication.",
 				Optional:    true,
 				Default:     "",
 			},
-			"personality": &schema.Schema{
+			"personality": {
 				Type:         schema.TypeString,
 				Description:  "Determines how the Purity system tunes the protocol used between the array and the initiator.",
 				Optional:     true,
 				Default:      "",
 				ValidateFunc: validation.StringInSlice([]string{"", "aix", "esxi", "hitachi-vsp", "hpux", "oracle-vm-server", "solaris", "vms"}, false),
 			},
-			"preferred_array": &schema.Schema{
-				Type:        schema.TypeList,
+			"preferred_array": {
+				Type:        schema.TypeSet,
 				Description: "List of preferred arrays.",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -92,23 +92,23 @@ func resourcePureHost() *schema.Resource {
 				Optional: true,
 				Default:  nil,
 			},
-			"hgroup": &schema.Schema{
+			"hgroup": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"target_password": &schema.Schema{
+			"target_password": {
 				Type:        schema.TypeString,
 				Description: "Target password for CHAP authentication.",
 				Computed:    true,
 				Optional:    true,
 			},
-			"target_user": &schema.Schema{
+			"target_user": {
 				Type:        schema.TypeString,
 				Description: "Target username for CHAP authentication.",
 				Optional:    true,
 				Default:     "",
 			},
-			"volume": &schema.Schema{
+			"volume": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Elem: &schema.Resource{
@@ -220,7 +220,7 @@ func resourcePureHostCreate(d *schema.ResourceData, m interface{}) error {
 		}
 		for k, v := range chapDetails {
 			d.Set(k, v)
-	}
+		}
 	}
 
 	if personality, ok := d.GetOk("personality"); ok {
@@ -373,7 +373,7 @@ func resourcePureHostUpdate(d *schema.ResourceData, m interface{}) error {
 
 		for k, v := range chapDetails {
 			d.Set(k, v)
-	}
+		}
 	}
 
 	if d.HasChange("personality") {

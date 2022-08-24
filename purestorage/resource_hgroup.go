@@ -18,7 +18,7 @@ package purestorage
 
 import (
 	"github.com/devans10/pugo/flasharray"
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourcePureHostgroup() *schema.Resource {
@@ -32,11 +32,11 @@ func resourcePureHostgroup() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"hosts": &schema.Schema{
+			"hosts": {
 				Type: schema.TypeList,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -44,7 +44,7 @@ func resourcePureHostgroup() *schema.Resource {
 				Optional: true,
 				Default:  nil,
 			},
-			"volume": &schema.Schema{
+			"volume": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Elem: &schema.Resource{

@@ -21,7 +21,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func testAccClientPreCheck(t *testing.T) {
@@ -70,7 +70,7 @@ func TestNewConfigWithApiToken(t *testing.T) {
 		RequestKwargs: map[string]string{},
 	}
 
-	r := &schema.Resource{Schema: Provider().(*schema.Provider).Schema}
+	r := &schema.Resource{Schema: Provider().Schema}
 	d := r.Data(nil)
 	d.Set("username", expected.Username)
 	d.Set("password", expected.Password)
@@ -103,7 +103,7 @@ func TestNewConfigWithUsernameAndPassword(t *testing.T) {
 		RequestKwargs: map[string]string{},
 	}
 
-	r := &schema.Resource{Schema: Provider().(*schema.Provider).Schema}
+	r := &schema.Resource{Schema: Provider().Schema}
 	d := r.Data(nil)
 	d.Set("username", expected.Username)
 	d.Set("password", expected.Password)
@@ -136,7 +136,7 @@ func TestNewConfigWithAllAuth(t *testing.T) {
 		RequestKwargs: map[string]string{},
 	}
 
-	r := &schema.Resource{Schema: Provider().(*schema.Provider).Schema}
+	r := &schema.Resource{Schema: Provider().Schema}
 	d := r.Data(nil)
 	d.Set("username", expected.Username)
 	d.Set("password", expected.Password)

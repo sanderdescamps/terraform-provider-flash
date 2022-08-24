@@ -18,7 +18,7 @@ package purestorage
 
 import (
 	"github.com/devans10/pugo/flasharray"
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func dataSourcePureFlashArray() *schema.Resource {
@@ -26,15 +26,15 @@ func dataSourcePureFlashArray() *schema.Resource {
 		Read: dataSourcePureFlashArrayRead,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"version": &schema.Schema{
+			"version": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"revision": &schema.Schema{
+			"revision": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
