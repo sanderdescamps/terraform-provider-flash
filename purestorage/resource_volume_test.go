@@ -19,6 +19,7 @@ package purestorage
 import (
 	"fmt"
 	"math/rand"
+	"strings"
 	"testing"
 
 	"github.com/devans10/pugo/flasharray"
@@ -155,6 +156,44 @@ func testAccCheckPureVolumeExists(n string, exists bool) resource.TestCheckFunc 
 				return fmt.Errorf("volume does not exist: %s", n)
 			}
 			return nil
+		}
+		return nil
+	}
+}
+
+func testAccCheckPureVolumeCount(testID string, count int) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rsCount := 0
+		volCount := 0
+		for _, rs := range s.RootModule().Resources {
+			if rs.Type != "purefa_volume" {
+				continue
+			}
+
+			if name, ok := rs.Primary.Attributes["name"]; ok {
+				if strings.Contains(name, testID) {
+					rsCount += 1
+				}
+			}
+		}
+
+		client := testAccProvider.Meta().(*flasharray.Client)
+		if volumes, err := client.Volumes.ListVolumes(nil); err == nil {
+			for _, volume := range volumes {
+				if strings.Contains(volume.Name, testID) {
+					volCount += 1
+				}
+			}
+		}
+
+		if rsCount > count {
+			return fmt.Errorf("Too many volumes in state file (has %d expected %d)", rsCount, count)
+		} else if rsCount < count {
+			return fmt.Errorf("Missing volumes in state file (has %d expected %d)", rsCount, count)
+		} else if volCount > count {
+			return fmt.Errorf("Too many volumes on storage array (has %d expected %d)", volCount, count)
+		} else if volCount < count {
+			return fmt.Errorf("Missing volumes on storage array (has %d expected %d)", volCount, count)
 		}
 		return nil
 	}
