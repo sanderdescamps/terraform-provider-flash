@@ -121,7 +121,6 @@ func resourcePureVolumeRead(ctx context.Context, d *schema.ResourceData, m inter
 // extending volumes is supported at this time, since truncating volumes can
 // lead to data loss.
 func resourcePureVolumeUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	d.Partial(true)
 
 	client := m.(*flasharray.Client)
 	var v *flasharray.Volume
