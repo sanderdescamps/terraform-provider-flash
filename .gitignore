@@ -49,3 +49,5 @@ vendor.tar
 # builds
 terraform-provider-flash_*
 terraform-provider-flash
+terraform-provider-purefa_*
+terraform-provider-purefa

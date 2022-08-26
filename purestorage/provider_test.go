@@ -34,7 +34,7 @@ func init() {
 		func() {
 			testAccProvider = Provider()
 			testAccProviders = map[string]*schema.Provider{
-				"purestorage": testAccProvider,
+				"purefa": testAccProvider,
 			}
 		},
 	)

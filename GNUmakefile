@@ -1,6 +1,6 @@
 TEST?=$$(go list ./... |grep -v 'vendor')
 GOFMT_FILES?=$$(find . -name '*.go' |grep -v vendor)
-PROVIDER_NAME=flash
+PROVIDER_NAME=purefa
 VERSION=1.1.3
 ARCH=amd64
 OS=linux

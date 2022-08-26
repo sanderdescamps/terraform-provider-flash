@@ -80,18 +80,18 @@ func Provider() *schema.Provider {
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
-			"purestorage_flasharray": dataSourcePureFlashArray(),
+			"purefa_flasharray": dataSourcePureFlashArray(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
-			"purestorage_flasharray": schema.DataSourceResourceShim(
-				"purestorage_flasharray",
+			"purefa_flasharray": schema.DataSourceResourceShim(
+				"purefa_flasharray",
 				dataSourcePureFlashArray(),
 			),
-			"purestorage_volume":          resourcePureVolume(),
-			"purestorage_host":            resourcePureHost(),
-			"purestorage_hostgroup":       resourcePureHostgroup(),
-			"purestorage_protectiongroup": resourcePureProtectiongroup(),
+			"purefa_volume":          resourcePureVolume(),
+			"purefa_host":            resourcePureHost(),
+			"purefa_hostgroup":       resourcePureHostgroup(),
+			"purefa_protectiongroup": resourcePureProtectiongroup(),
 		},
 		ConfigureFunc: providerConfigure,
 	}

@@ -26,8 +26,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
-const testAccCheckPureVolumeResourceName = "purestorage_volume.tfvolumetest"
-const testAccCheckPureVolumeCloneResourceName = "purestorage_volume.tfclonevolumetest"
+const testAccCheckPureVolumeResourceName = "purefa_volume.tfvolumetest"
+const testAccCheckPureVolumeCloneResourceName = "purefa_volume.tfclonevolumetest"
 
 // The volumes created in theses tests will not be eradicated.
 //
@@ -123,7 +123,7 @@ func testAccCheckPureVolumeDestroy(s *terraform.State) error {
 	client := testAccProvider.Meta().(*flasharray.Client)
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "purestorage_volume" {
+		if rs.Type != "purefa_volume" {
 			continue
 		}
 
@@ -162,7 +162,7 @@ func testAccCheckPureVolumeExists(n string, exists bool) resource.TestCheckFunc 
 
 func testAccCheckPureVolumeConfig(rInt int) string {
 	return fmt.Sprintf(`
-resource "purestorage_volume" "tfvolumetest" {
+resource "purefa_volume" "tfvolumetest" {
         name = "tfvolumetest-%d"
         size = 1024000000
 }`, rInt)
@@ -170,20 +170,20 @@ resource "purestorage_volume" "tfvolumetest" {
 
 func testAccCheckPureVolumeConfigClone(rInt int) string {
 	return fmt.Sprintf(`
-resource "purestorage_volume" "tfvolumetest" {
+resource "purefa_volume" "tfvolumetest" {
         name = "tfvolumetest-%d"
         size = 1024000000
 }
 
-resource "purestorage_volume" "tfclonevolumetest" {
+resource "purefa_volume" "tfclonevolumetest" {
         name = "tfclonevolumetest-%d"
-        source = "${purestorage_volume.tfvolumetest.name}"
+        source = "${purefa_volume.tfvolumetest.name}"
 }`, rInt, rInt)
 }
 
 func testAccCheckPureVolumeConfigResize(rInt int) string {
 	return fmt.Sprintf(`
-resource "purestorage_volume" "tfvolumetest" {
+resource "purefa_volume" "tfvolumetest" {
 	name = "tfvolumetest-%d"
 	size = 2048000000
 }`, rInt)
@@ -191,7 +191,7 @@ resource "purestorage_volume" "tfvolumetest" {
 
 func testAccCheckPureVolumeConfigRename(rInt int) string {
 	return fmt.Sprintf(`
-resource "purestorage_volume" "tfvolumetest" {
+resource "purefa_volume" "tfvolumetest" {
         name = "tfvolumetest-rename-%d"
         size = 2048000000
 }`, rInt)
