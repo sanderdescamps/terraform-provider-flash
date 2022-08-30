@@ -27,10 +27,10 @@ import (
 
 func resourcePureNetworkInterface() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourcePureHostCreate,
-		ReadContext:   resourcePureHostRead,
-		UpdateContext: resourcePureHostUpdate,
-		DeleteContext: resourcePureHostDelete,
+		CreateContext: resourcePureNetworkInterfaceCreate,
+		ReadContext:   resourcePureNetworkInterfaceRead,
+		UpdateContext: resourcePureNetworkInterfaceUpdate,
+		DeleteContext: resourcePureNetworkInterfaceDelete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
