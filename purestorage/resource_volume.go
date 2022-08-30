@@ -102,8 +102,8 @@ func resourcePureVolumeCreate(ctx context.Context, d *schema.ResourceData, m int
 		fullName = name.(string)
 	}
 
-	s, _ := d.GetOk("source")
-	if s.(string) == "" {
+	s, s_ok := d.GetOk("source")
+	if !s_ok || s.(string) == "" {
 		z, _ := d.GetOk("size")
 		if v, err = client.Volumes.CreateVolume(fullName, z.(int)); err != nil {
 			return diag.FromErr(err)
