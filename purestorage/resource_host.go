@@ -302,7 +302,7 @@ func resourcePureHostUpdate(ctx context.Context, d *schema.ResourceData, m inter
 	if d.HasChange("wwn") {
 		var wwnlist []string
 		wl, _ := d.GetOk("wwn")
-		for _, element := range wl.([]interface{}) {
+		for _, element := range wl.(*schema.Set).List() {
 			wwnlist = append(wwnlist, element.(string))
 		}
 		data := map[string]interface{}{"wwnlist": wwnlist}
@@ -315,7 +315,7 @@ func resourcePureHostUpdate(ctx context.Context, d *schema.ResourceData, m inter
 	if d.HasChange("iqn") {
 		var iqnlist []string
 		il, _ := d.GetOk("iqn")
-		for _, element := range il.([]interface{}) {
+		for _, element := range il.(*schema.Set).List() {
 			iqnlist = append(iqnlist, element.(string))
 		}
 		data := map[string]interface{}{"iqnlist": iqnlist}
@@ -328,7 +328,7 @@ func resourcePureHostUpdate(ctx context.Context, d *schema.ResourceData, m inter
 	if d.HasChange("nqn") {
 		var nqnlist []string
 		nl, _ := d.GetOk("nqn")
-		for _, element := range nl.([]interface{}) {
+		for _, element := range nl.(*schema.Set).List() {
 			nqnlist = append(nqnlist, element.(string))
 		}
 		data := map[string]interface{}{"nqnlist": nqnlist}
@@ -341,7 +341,7 @@ func resourcePureHostUpdate(ctx context.Context, d *schema.ResourceData, m inter
 	if d.HasChange("preferred_array") {
 		var preferredArray []string
 		pa, _ := d.GetOk("preferred_array")
-		for _, element := range pa.([]interface{}) {
+		for _, element := range pa.(*schema.Set).List() {
 			preferredArray = append(preferredArray, element.(string))
 		}
 		data := map[string]interface{}{"preferred_array": preferredArray}

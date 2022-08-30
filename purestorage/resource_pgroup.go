@@ -162,7 +162,6 @@ func resourcePureProtectiongroup() *schema.Resource {
 }
 
 func resourcePureProtectiongroupCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	d.Partial(true)
 
 	client := m.(*flasharray.Client)
 	var pgroup *flasharray.Protectiongroup

@@ -19,6 +19,7 @@ package purestorage
 import (
 	"fmt"
 	"math/rand"
+	"strings"
 	"testing"
 
 	"github.com/devans10/pugo/flasharray"
@@ -26,8 +27,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
-const testAccCheckPureVolumeResourceName = "purestorage_volume.tfvolumetest"
-const testAccCheckPureVolumeCloneResourceName = "purestorage_volume.tfclonevolumetest"
+const testAccCheckPureVolumeResourceName = "purefa_volume.tfvolumetest"
+const testAccCheckPureVolumeCloneResourceName = "purefa_volume.tfclonevolumetest"
 
 // The volumes created in theses tests will not be eradicated.
 //
@@ -123,7 +124,7 @@ func testAccCheckPureVolumeDestroy(s *terraform.State) error {
 	client := testAccProvider.Meta().(*flasharray.Client)
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "purestorage_volume" {
+		if rs.Type != "purefa_volume" {
 			continue
 		}
 
@@ -160,9 +161,47 @@ func testAccCheckPureVolumeExists(n string, exists bool) resource.TestCheckFunc 
 	}
 }
 
+func testAccCheckPureVolumeCount(testID string, count int) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rsCount := 0
+		volCount := 0
+		for _, rs := range s.RootModule().Resources {
+			if rs.Type != "purefa_volume" {
+				continue
+			}
+
+			if name, ok := rs.Primary.Attributes["name"]; ok {
+				if strings.Contains(name, testID) {
+					rsCount += 1
+				}
+			}
+		}
+
+		client := testAccProvider.Meta().(*flasharray.Client)
+		if volumes, err := client.Volumes.ListVolumes(nil); err == nil {
+			for _, volume := range volumes {
+				if strings.Contains(volume.Name, testID) {
+					volCount += 1
+				}
+			}
+		}
+
+		if rsCount > count {
+			return fmt.Errorf("Too many volumes in state file (has %d expected %d)", rsCount, count)
+		} else if rsCount < count {
+			return fmt.Errorf("Missing volumes in state file (has %d expected %d)", rsCount, count)
+		} else if volCount > count {
+			return fmt.Errorf("Too many volumes on storage array (has %d expected %d)", volCount, count)
+		} else if volCount < count {
+			return fmt.Errorf("Missing volumes on storage array (has %d expected %d)", volCount, count)
+		}
+		return nil
+	}
+}
+
 func testAccCheckPureVolumeConfig(rInt int) string {
 	return fmt.Sprintf(`
-resource "purestorage_volume" "tfvolumetest" {
+resource "purefa_volume" "tfvolumetest" {
         name = "tfvolumetest-%d"
         size = 1024000000
 }`, rInt)
@@ -170,20 +209,20 @@ resource "purestorage_volume" "tfvolumetest" {
 
 func testAccCheckPureVolumeConfigClone(rInt int) string {
 	return fmt.Sprintf(`
-resource "purestorage_volume" "tfvolumetest" {
+resource "purefa_volume" "tfvolumetest" {
         name = "tfvolumetest-%d"
         size = 1024000000
 }
 
-resource "purestorage_volume" "tfclonevolumetest" {
+resource "purefa_volume" "tfclonevolumetest" {
         name = "tfclonevolumetest-%d"
-        source = "${purestorage_volume.tfvolumetest.name}"
+        source = "${purefa_volume.tfvolumetest.name}"
 }`, rInt, rInt)
 }
 
 func testAccCheckPureVolumeConfigResize(rInt int) string {
 	return fmt.Sprintf(`
-resource "purestorage_volume" "tfvolumetest" {
+resource "purefa_volume" "tfvolumetest" {
 	name = "tfvolumetest-%d"
 	size = 2048000000
 }`, rInt)
@@ -191,7 +230,7 @@ resource "purestorage_volume" "tfvolumetest" {
 
 func testAccCheckPureVolumeConfigRename(rInt int) string {
 	return fmt.Sprintf(`
-resource "purestorage_volume" "tfvolumetest" {
+resource "purefa_volume" "tfvolumetest" {
         name = "tfvolumetest-rename-%d"
         size = 2048000000
 }`, rInt)

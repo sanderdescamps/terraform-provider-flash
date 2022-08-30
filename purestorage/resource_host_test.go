@@ -26,7 +26,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
-const testAccCheckPureHostResourceName = "purestorage_host.tfhosttest"
+const testAccCheckPureHostResourceName = "purefa_host.tfhosttest"
 
 // Create a host
 func TestAccResourcePureHost_create(t *testing.T) {
@@ -280,7 +280,7 @@ func testAccCheckPureHostDestroy(s *terraform.State) error {
 	client := testAccProvider.Meta().(*flasharray.Client)
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "purestorage_host" {
+		if rs.Type != "purefa_host" {
 			continue
 		}
 
@@ -481,14 +481,14 @@ func testAccCheckPureHostPersonality(n string, personality string, exists bool) 
 
 func testAccCheckPureHostConfigBasic(rInt int) string {
 	return fmt.Sprintf(`
-resource "purestorage_host" "tfhosttest" {
+resource "purefa_host" "tfhosttest" {
         name = "tfhosttest%d"
 }`, rInt)
 }
 
 func testAccCheckPureHostConfigRename(rInt int) string {
 	return fmt.Sprintf(`
-resource "purestorage_host" "tfhosttest" {
+resource "purefa_host" "tfhosttest" {
         name = "tfhosttestrename%d"
 	wwn = ["0000999900009999"]
 }`, rInt)
@@ -496,7 +496,7 @@ resource "purestorage_host" "tfhosttest" {
 
 func testAccCheckPureHostConfigWithWWN(rInt int) string {
 	return fmt.Sprintf(`
-resource "purestorage_host" "tfhosttest" {
+resource "purefa_host" "tfhosttest" {
         name = "tfhosttest%d"
 	wwn = ["0000999900009999"]
 }`, rInt)
@@ -504,15 +504,15 @@ resource "purestorage_host" "tfhosttest" {
 
 func testAccCheckPureHostConfigWithVolume(rInt int) string {
 	return fmt.Sprintf(`
-resource "purestorage_volume" "tfhosttest-volume" {
+resource "purefa_volume" "tfhosttest-volume" {
 	name = "tfhosttest-volume-%d"
 	size = 1024000000
 }
-resource "purestorage_host" "tfhosttest" {
+resource "purefa_host" "tfhosttest" {
         name = "tfhosttest%d"
         wwn = ["0000999900009999"]
 	volume {
-		vol = "${purestorage_volume.tfhosttest-volume.name}"
+		vol = "${purefa_volume.tfhosttest-volume.name}"
 		lun = 1
 	}
 }`, rInt, rInt)
@@ -520,11 +520,11 @@ resource "purestorage_host" "tfhosttest" {
 
 func testAccCheckPureHostConfigWithoutVolume(rInt int) string {
 	return fmt.Sprintf(`
-resource "purestorage_volume" "tfhosttest-volume" {
+resource "purefa_volume" "tfhosttest-volume" {
         name = "tfhosttest-volume-%d"
         size = 1024000000
 }
-resource "purestorage_host" "tfhosttest" {
+resource "purefa_host" "tfhosttest" {
         name = "tfhosttest%d"
         wwn = ["0000999900009999"]
 }`, rInt, rInt)
@@ -532,7 +532,7 @@ resource "purestorage_host" "tfhosttest" {
 
 func testAccCheckPureHostConfigWithCHAP(rInt int) string {
 	return fmt.Sprintf(`
-resource "purestorage_host" "tfhosttest" {
+resource "purefa_host" "tfhosttest" {
 	name = "tfhosttest%d"
 	host_user = "myhostuser"
 	target_user = "mytargetuser"
@@ -541,7 +541,7 @@ resource "purestorage_host" "tfhosttest" {
 
 func testAccCheckPureHostConfigWithPersonality(rInt int) string {
 	return fmt.Sprintf(`
-resource "purestorage_host" "tfhosttest" {
+resource "purefa_host" "tfhosttest" {
         name = "tfhosttest%d"
 	personality = "aix"
 }`, rInt)
@@ -549,29 +549,29 @@ resource "purestorage_host" "tfhosttest" {
 
 func testAccCheckPureHostConfigWithPrivateAndSharedVolumes(rInt int) string {
 	return fmt.Sprintf(`
-resource "purestorage_volume" "tfhosttest-private-volume" {
+resource "purefa_volume" "tfhosttest-private-volume" {
 	name = "tfhosttest-private-volume-%d"
 	size = 1024000000
 }
 
-resource "purestorage_volume" "tfhosttest-shared-volume" {
+resource "purefa_volume" "tfhosttest-shared-volume" {
         name = "tfhosttest-shared-volume-%d"
         size = 1024000000
 }
 
-resource "purestorage_host" "tfhosttest" {
+resource "purefa_host" "tfhosttest" {
 	name = "tfhosttest%d"
 	volume {
-		vol = "${purestorage_volume.tfhosttest-private-volume.name}"
+		vol = "${purefa_volume.tfhosttest-private-volume.name}"
 		lun = 1
 	}
 }
 
-resource "purestorage_hostgroup" "tfhosttesthostgroup" {
+resource "purefa_hostgroup" "tfhosttesthostgroup" {
 	name = "tfhosthostgroup%d"
-	hosts = ["${purestorage_host.tfhosttest.name}"]
+	hosts = ["${purefa_host.tfhosttest.name}"]
 	volume {
-		vol = "${purestorage_volume.tfhosttest-shared-volume.name}"
+		vol = "${purefa_volume.tfhosttest-shared-volume.name}"
 		lun = 250
 	}
 }`, rInt, rInt, rInt, rInt)

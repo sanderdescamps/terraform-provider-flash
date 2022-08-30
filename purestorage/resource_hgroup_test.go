@@ -26,7 +26,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
-const testAccCheckPureHostgroupResourceName = "purestorage_hostgroup.tfhostgrouptest"
+const testAccCheckPureHostgroupResourceName = "purefa_hostgroup.tfhostgrouptest"
 
 // Create a hostgroup
 func TestAccResourcePureHostgroup_create(t *testing.T) {
@@ -149,7 +149,7 @@ func testAccCheckPureHostgroupDestroy(s *terraform.State) error {
 	client := testAccProvider.Meta().(*flasharray.Client)
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "purestorage_hostgroup" {
+		if rs.Type != "purefa_hostgroup" {
 			continue
 		}
 
@@ -254,41 +254,41 @@ func testAccCheckPureHostgroupVolumes(n string, volume string, exists bool) reso
 
 func testAccCheckPureHostgroupConfig(rInt int) string {
 	return fmt.Sprintf(`
-resource "purestorage_hostgroup" "tfhostgrouptest" {
+resource "purefa_hostgroup" "tfhostgrouptest" {
         name = "tfhostgrouptest%d"
 }`, rInt)
 }
 
 func testAccCheckPureHostgroupConfigWithHostlist(rInt int) string {
 	return fmt.Sprintf(`
-resource "purestorage_host" "tfhostgrouptesthost" {
+resource "purefa_host" "tfhostgrouptesthost" {
         name = "tfhostgrouptesthost%d"
 }
 
-resource "purestorage_hostgroup" "tfhostgrouptest" {
+resource "purefa_hostgroup" "tfhostgrouptest" {
         name = "tfhostgrouptest%d"
-        hosts = ["${purestorage_host.tfhostgrouptesthost.name}"]
+        hosts = ["${purefa_host.tfhostgrouptesthost.name}"]
 }`, rInt, rInt)
 }
 
 func testAccCheckPureHostgroupConfigRename() string {
 	return fmt.Sprintf(`
-resource "purestorage_hostgroup" "tfhostgrouptest" {
+resource "purefa_hostgroup" "tfhostgrouptest" {
         name = "tfhostgrouptestrename"
 }`)
 }
 
 func testAccCheckPureHostgroupConfigWithVolumes(rInt int) string {
 	return fmt.Sprintf(`
-resource "purestorage_volume" "tfhostgrouptest-volume" {
+resource "purefa_volume" "tfhostgrouptest-volume" {
 	name = "tfhostgrouptest-volume-%d"
 	size = 1024000000
 }
 
-resource "purestorage_hostgroup" "tfhostgrouptest" {
+resource "purefa_hostgroup" "tfhostgrouptest" {
         name = "tfhostgrouptest%d"
 	volume {
-		vol = "${purestorage_volume.tfhostgrouptest-volume.name}"
+		vol = "${purefa_volume.tfhostgrouptest-volume.name}"
 		lun = 250
 	}
 }`, rInt, rInt)
@@ -296,12 +296,12 @@ resource "purestorage_hostgroup" "tfhostgrouptest" {
 
 func testAccCheckPureHostgroupConfigWithoutVolumes(rInt int) string {
 	return fmt.Sprintf(`
-resource "purestorage_volume" "tfhostgrouptest-volume" {
+resource "purefa_volume" "tfhostgrouptest-volume" {
         name = "tfhostgrouptest-volume-%d"
         size = 1024000000
 }
 
-resource "purestorage_hostgroup" "tfhostgrouptest" {
+resource "purefa_hostgroup" "tfhostgrouptest" {
         name = "tfhostgrouptest%d"
 }`, rInt, rInt)
 }

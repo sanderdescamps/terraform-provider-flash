@@ -42,7 +42,7 @@ terraform {
 You will also need to list the provider in all of the resources.
 
 ```sh
-resource "purestorage_volume" "vol1" {
+resource "purefa_volume" "vol1" {
   provider = flash
   name     = "volume_name"
   size     = 1073741824
@@ -67,8 +67,8 @@ providers {
 
 ```sh
 provider "flash" {
-  api_token  = "${var.purestorage_apitoken}"
-  target     = "${var.purestorage_target}"
+  api_token  = "${var.purefa_apitoken}"
+  target     = "${var.purefa_target}"
 }
 ```
 
@@ -76,9 +76,9 @@ or
 
 ```sh
 provider "flash" {
-  username   = "${var.purestorage_username}"
-  password   = "${var.purestorage_password}"
-  target     = "${var.purestorage_target}"
+  username   = "${var.purefa_username}"
+  password   = "${var.purefa_password}"
+  target     = "${var.purefa_target}"
 }
 ```
 
@@ -117,7 +117,7 @@ Using the provider
 Create one volume
 
 ```sh
-resource "purestorage_volume" "testvol_tf" {
+resource "purefa_volume" "testvol_tf" {
   provider = flash
   name     = "testvol_tf"
   size     = "1048000000"
@@ -127,7 +127,7 @@ resource "purestorage_volume" "testvol_tf" {
 Copy a volume
 
 ```sh
-resource "purestorage_volume" "testvol_tf_copy" {
+resource "purefa_volume" "testvol_tf_copy" {
   provider = flash
   name     = "testvol_tf_copy"
   source   = "testvol_tf"
@@ -137,7 +137,7 @@ resource "purestorage_volume" "testvol_tf_copy" {
 Create a host
 
 ```sh
-resource "purestorage_host" "testhosttf" {
+resource "purefa_host" "testhosttf" {
   provider = flash
   name     = "testhosttf"
   volume {
@@ -150,7 +150,7 @@ resource "purestorage_host" "testhosttf" {
 Create a hostgroup
 
 ```sh
-resource "purestorage_hostgroup" "testhgrouptf" {
+resource "purefa_hostgroup" "testhgrouptf" {
   provider = flash
   name     = "testhgrouptf"
   hosts    = ["testhosttf"]
@@ -166,7 +166,7 @@ Create a Protection Group
 Protection Group has a hosts, hgroups, and volumes parameters, but only 1 can be used.
 
 ```sh
-resource "purestorage_protectiongroup" "testpgroup" {
+resource "purefa_protectiongroup" "testpgroup" {
   provider = flash
   name     = "testpgroup"
   volumes  = ["testvol_tf", "testvol_tf_copy"]
