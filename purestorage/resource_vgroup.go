@@ -28,10 +28,10 @@ import (
 
 func resourcePureVolumegroup() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourcePureVolumeCreate,
-		ReadContext:   resourcePureVolumeRead,
-		UpdateContext: resourcePureVolumeUpdate,
-		DeleteContext: resourcePureVolumeDelete,
+		CreateContext: resourcePureVolumegroupCreate,
+		ReadContext:   resourcePureVolumegroupRead,
+		UpdateContext: resourcePureVolumegroupUpdate,
+		DeleteContext: resourcePureVolumegroupDelete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
