@@ -89,14 +89,14 @@ func TestAccResourcePureVolumeGroup_withVolumes(t *testing.T) {
 			{
 				Config: testAccCheckPureVolumeGroupConfigWithoutVolumes("tfvolumegrouptest", "tfvolumetest", 3, testID),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckPureVolumeGroupExists(testAccCheckPureVolumeResourceName, true),
+					testAccCheckPureVolumeGroupExists(testAccCheckPureVolumeGroupResourceName, true),
 					testAccCheckPureVolumeCount(strconv.Itoa(testID), 3),
 				),
 			},
 			{
 				Config: testAccCheckPureVolumeGroupConfigWithVolumes("tfvolumegrouptest", "tfvolumetest", 3, testID),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckPureVolumeGroupExists(testAccCheckPureVolumeResourceName, true),
+					testAccCheckPureVolumeGroupExists(testAccCheckPureVolumeGroupResourceName, true),
 					testAccCheckPureVolumeCount(strconv.Itoa(testID), 3),
 				),
 			},
