@@ -49,19 +49,20 @@ func resourcePureVolumegroup() *schema.Resource {
 func resourcePureVolumegroupCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	client := m.(*flasharray.Client)
 
-	if v, err := client.Vgroups.CreateVgroup(d.Get("name").(string)); err != nil {
+	if vgroup, err := client.Vgroups.CreateVgroup(d.Get("name").(string)); err != nil {
 		return diag.FromErr(err)
 	} else {
-		d.SetId(v.Name)
+		d.Set("name", vgroup.Name)
+		d.SetId(vgroup.Name)
 	}
 
-	return resourcePureVolumegroupRead(ctx, d, m)
+	return nil
 }
 
 func resourcePureVolumegroupRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	client := m.(*flasharray.Client)
 
-	if vgroup, err := client.Vgroups.GetVgroup(d.Id()); err == nil {
+	if vgroup, err := client.Vgroups.GetVgroup(d.Id()); err != nil {
 		d.SetId("")
 		return nil
 	} else {
