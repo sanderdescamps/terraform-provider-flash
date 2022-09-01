@@ -54,7 +54,7 @@ func TestAccResourcePureAlertRecipient(t *testing.T) {
 func testAccCheckPureAlertRecipientConfig(email string, enabled bool) string {
 	name := strings.Split(email, "@")[0]
 	return fmt.Sprintf(`
-			resource "purefa_alert_recipient" "tfalert_%s {
+			resource "purefa_alert_recipient" "tfalert_%s" {
 					email = "%s"
 					enabled = %t
 
