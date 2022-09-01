@@ -16,6 +16,8 @@
 
 package purestorage
 
+// The Pure API 1.x does not support setting network interfaces. Therefore this resource is disabled.
+/*
 import (
 	"context"
 
@@ -218,3 +220,5 @@ func resourcePureNetworkInterfaceDelete(ctx context.Context, d *schema.ResourceD
 	d.SetId("")
 	return nil
 }
+
+*/
