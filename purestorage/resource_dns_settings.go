@@ -48,11 +48,10 @@ func resourcePureDnsSettings() *schema.Resource {
 				Required: true,
 			},
 			"domain": {
-				Type:         schema.TypeString,
-				Description:  "Network address for the network interface",
-				Required:     false,
-				Optional:     true,
-				ValidateFunc: validation.IsIPAddress,
+				Type:        schema.TypeString,
+				Description: "Network address for the network interface",
+				Required:    false,
+				Optional:    true,
 			},
 		},
 	}
