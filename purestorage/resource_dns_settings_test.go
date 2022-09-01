@@ -26,8 +26,8 @@ import (
 
 // Configure DNS settings
 func TestAccResourcePureDnsSettings_create(t *testing.T) {
-	nameservers1 := []string{"1.1.1.1"}
-	nameservers2 := []string{"1.1.1.1,1.0.0.1"}
+	nameservers1 := []string{"10.0.0.1"}
+	nameservers2 := []string{"10.0.0.1", "1.0.0.1"}
 	domain := "testdrive.local"
 
 	resource.Test(t, resource.TestCase{

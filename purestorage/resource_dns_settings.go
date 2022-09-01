@@ -101,19 +101,19 @@ func resourcePureDnsSettingsRead(ctx context.Context, d *schema.ResourceData, m 
 }
 
 func resourcePureDnsSettingsDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	client := m.(*flasharray.Client)
+	// client := m.(*flasharray.Client)
 
-	data := make(map[string]interface{})
-	data["nameservers"] = []string{}
-	data["domain"] = ""
+	// data := make(map[string]interface{})
+	// data["nameservers"] = []string{}
+	// data["domain"] = ""
 
-	if dnsSettings, err := client.Networks.SetDNS(data); err != nil {
-		return diag.FromErr(err)
-	} else {
-		d.Set("nameservers", dnsSettings.Nameservers)
-		d.Set("domain", dnsSettings.Domain)
-		d.SetId(fmt.Sprintf("dns-settings-%s", client.Target))
-	}
+	// if dnsSettings, err := client.Networks.SetDNS(data); err != nil {
+	// 	return diag.FromErr(err)
+	// } else {
+	// 	d.Set("nameservers", dnsSettings.Nameservers)
+	// 	d.Set("domain", dnsSettings.Domain)
+	// 	d.SetId(fmt.Sprintf("dns-settings-%s", client.Target))
+	// }
 
 	d.SetId("")
 	return nil
