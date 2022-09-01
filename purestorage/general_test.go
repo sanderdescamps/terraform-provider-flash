@@ -59,7 +59,7 @@ func testAccCheckPureHostConfigFullSetup(numberOfHosts int, numberOfVolumes int,
 		}`, testID, numberOfHosts)
 
 	output += fmt.Sprintf(`
-		resource "purefa_hgroup" "tfhostgrouptest" {
+		resource "purefa_hostgroup" "tfhostgrouptest" {
 			name = "tfhosttest%s"
 			dynamic "volume" {
 				for_each = purefa_volume.tfhosttest-volumes
