@@ -53,7 +53,9 @@ func resourcePureVolume() *schema.Resource {
 			"size": {
 				Description: "Specified provisioned size of the volume. Number in bytes",
 				Type:        schema.TypeInt,
-				Required:    true,
+				Required:    false, //can't be required because when source is set, the size is not required.
+				Optional:    true,
+				Computed:    true,
 			},
 			"source": {
 				Description: "The source volume of a volume copy.",
