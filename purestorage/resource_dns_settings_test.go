@@ -57,7 +57,7 @@ func testAccCheckPureDnsSettingsConfig(nameservers []string, domain interface{})
 		return fmt.Sprintf(`
 			resource "purefa_dns_settings" "tfdnssettingstest" {
 					nameservers = split(";","%s")
-					domain = %s
+					domain = "%s"
 			}`, strings.Join(nameservers, ";"), domain.(string))
 	}
 
