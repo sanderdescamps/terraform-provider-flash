@@ -15,9 +15,10 @@
 */
 
 // The Pure API 1.x does not support setting network interfaces. Therefore this resource is disabled.
-/*
+
 package purestorage
 
+/*
 // Configure Network interfaces settings
 func TestAccResourcePureNetworkInterface_create(t *testing.T) {
 	ifname := "vir1"
