@@ -565,7 +565,7 @@ func testAccCheckPureHostConfigWithVolumeAndVolumegroup(testID string) string {
 		resource "purefa_volume" "tfhosttest-volume" {
 			name = "tfhosttest-volume-%s"
 			size = 1024000000
-			volume_group = purefa_vgroup.tfhosttest-volume.name
+			volume_group = purefa_vgroup.tfhosttest-volumegroup.name
 		}
 		`, testID)
 
