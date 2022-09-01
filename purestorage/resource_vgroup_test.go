@@ -155,7 +155,7 @@ func testAccCheckPureVolumeGroupEradicate(s *terraform.State) error {
 		if err != nil {
 			return nil
 		} else if vgroup != nil && vgroup.TimeRemaining != nil && *vgroup.TimeRemaining > 0 {
-			_, err := client.Volumes.EradicateVolume(vgroup.Name)
+			_, err := client.Vgroups.EradicateVgroup(vgroup.Name)
 			if err != nil {
 				return err
 			}
@@ -180,7 +180,7 @@ func testAccCheckPureVolumeGroupExists(n string, exists bool) resource.TestCheck
 		_, err := client.Vgroups.GetVgroup(rs.Primary.ID)
 		if err != nil {
 			if exists {
-				return fmt.Errorf("volume does not exist: %s", n)
+				return fmt.Errorf("volume group does not exist: %s", n)
 			}
 			return nil
 		}
