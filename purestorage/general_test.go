@@ -46,7 +46,7 @@ func testAccCheckPureHostConfigFullSetup(numberOfHosts int, numberOfVolumes int,
 		resource "purefa_volume" "tfhosttest-volumes" {
 			name = "tfhosttest-volume-%s-${count.index}"
 			size = 1024000000
-			volume_group = purefa_vgroup.tfhosttest-volume.name
+			volume_group = purefa_vgroup.tfhosttest-volumegroup.name
 			count = %d
 		}
 		`, testID, numberOfVolumes)
