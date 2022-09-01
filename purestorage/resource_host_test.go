@@ -19,9 +19,11 @@ package purestorage
 import (
 	"fmt"
 	"math/rand"
+	"strconv"
 	"testing"
 
 	"github.com/devans10/pugo/flasharray"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
@@ -210,6 +212,40 @@ func TestAccResourcePureHost_update_AddandRemoveVolume(t *testing.T) {
 				Config: testAccCheckPureHostConfigWithoutVolume(rInt),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckPureHostVolumeConnection(testAccCheckPureHostResourceName, fmt.Sprintf("tfhosttest-volume-%d", rInt), false),
+				),
+			},
+		},
+	})
+}
+
+func TestAccResourcePureHost_volumeWithVolumegroup(t *testing.T) {
+	testID := strconv.Itoa(acctest.RandInt())
+
+	resource_name_volume := "purefa_volume.tfhosttest-volume"
+	resource_name_vgroup := "purefa_vgroup.tfhosttest-volumegroup"
+	resource_name_host := "purefa_host.tfhosttest"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		CheckDestroy: resource.ComposeTestCheckFunc(
+			testAccCheckPureHostDestroy,
+			testAccCheckPureVolumeDestroy,
+			testAccCheckPureVolumeEradicate,
+			testAccCheckPureVolumeGroupDestroy,
+			testAccCheckPureVolumeGroupEradicate,
+		),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckPureHostConfigWithVolumeAndVolumegroup(testID),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckPureHostExists(resource_name_host, true),
+					testAccCheckPureVolumeGroupExists(resource_name_vgroup, true),
+					testAccCheckPureVolumeExists(resource_name_volume, true),
+					resource.TestCheckResourceAttr(resource_name_host, "name", fmt.Sprintf("tfhosttest%s", testID)),
+					resource.TestCheckResourceAttr(resource_name_vgroup, "name", fmt.Sprintf("tfhosttest-volumegroup-%s", testID)),
+					resource.TestCheckResourceAttr(resource_name_volume, "name", fmt.Sprintf("tfhosttest-volume-%s", testID)),
+					resource.TestCheckResourceAttr(resource_name_volume, "full_name", fmt.Sprintf("tfhosttest-volumegroup-%s/tfhosttest-volume-%s", testID, testID)),
 				),
 			},
 		},
@@ -516,6 +552,33 @@ resource "purefa_host" "tfhosttest" {
 		lun = 1
 	}
 }`, rInt, rInt)
+}
+
+func testAccCheckPureHostConfigWithVolumeAndVolumegroup(testID string) string {
+	output := ""
+	output += fmt.Sprintf(`
+		resource "purefa_vgroup" "tfhosttest-volumegroup" {
+			name = "tfhosttest-volumegroup-%s"
+		}
+		`, testID)
+	output += fmt.Sprintf(`
+		resource "purefa_volume" "tfhosttest-volume" {
+			name = "tfhosttest-volume-%s"
+			size = 1024000000
+			volume_group = purefa_vgroup.tfhosttest-volume.name
+		}
+		`, testID)
+
+	output += fmt.Sprintf(`
+		resource "purefa_host" "tfhosttest" {
+			name = "tfhosttest%s"
+			wwn = ["0000999900009999"]
+			volume {
+				vol = "${purefa_volume.tfhosttest-volume.full_name}"
+				lun = 1
+			}
+		}`, testID)
+	return output
 }
 
 func testAccCheckPureHostConfigWithoutVolume(rInt int) string {
