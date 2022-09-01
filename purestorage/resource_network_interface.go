@@ -76,12 +76,11 @@ func resourcePureNetworkInterface() *schema.Resource {
 				ValidateFunc: validation.IntBetween(568, 9000),
 			},
 			"mac": {
-				Type:         schema.TypeString,
-				Description:  "mac address",
-				Computed:     true,
-				Required:     false,
-				Optional:     false,
-				ValidateFunc: validation.IsMACAddress,
+				Type:        schema.TypeString,
+				Description: "mac address",
+				Computed:    true,
+				Required:    false,
+				Optional:    false,
 			},
 			"speed": {
 				Type:        schema.TypeInt,
