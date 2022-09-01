@@ -29,6 +29,7 @@ func TestAccResourcePureDnsSettings_create(t *testing.T) {
 	nameservers1 := []string{"10.0.0.1"}
 	nameservers2 := []string{"10.0.0.1", "1.0.0.1"}
 	domain := "testdrive.local"
+	resource_name := "purefa_dns_settings.tfdnssettingstest"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -36,12 +37,27 @@ func TestAccResourcePureDnsSettings_create(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCheckPureDnsSettingsConfig(nameservers1, domain),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(resource_name, "domain", domain),
+				),
 			},
 			{
 				Config: testAccCheckPureDnsSettingsConfig(nameservers2, domain),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(resource_name, "domain", domain),
+				),
 			},
 			{
 				Config: testAccCheckPureDnsSettingsConfig(nameservers1, nil),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(resource_name, "domain", ""),
+				),
+			},
+			{
+				Config: testAccCheckPureDnsSettingsConfig(nameservers1, domain),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(resource_name, "domain", domain),
+				),
 			},
 		},
 	})

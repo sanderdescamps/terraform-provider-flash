@@ -52,6 +52,7 @@ func resourcePureDnsSettings() *schema.Resource {
 				Description: "Network address for the network interface",
 				Required:    false,
 				Optional:    true,
+				Default:     "",
 			},
 		},
 	}
