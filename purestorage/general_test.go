@@ -65,7 +65,7 @@ func testAccCheckPureHostConfigFullSetup(numberOfHosts int, numberOfVolumes int,
 				for_each = purefa_volume.tfhosttest-volumes
 				content {
 					vol = "${volume.value["full_name"]}"
-					lun = volume.key
+					lun = volume.key + 1
 				}
 			  }
 		}`, testID)
