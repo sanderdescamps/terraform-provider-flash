@@ -77,7 +77,7 @@ func TestAccResourcePureNetworkInterface_create(t *testing.T) {
 func testAccCheckPureNetworkInterfaceConfig(ifname string, address string, gateway string, netmask string, enabled bool, mtu int) string {
 	return fmt.Sprintf(`
 			resource "purefa_network_interface" "tfnetworkinterface%stest" {
-				name = %s
+				name = "%s"
 				address = "%s"
 				gateway = "%s"
 				netmask = "%s"
