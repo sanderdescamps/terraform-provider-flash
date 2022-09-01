@@ -45,6 +45,11 @@ func resourcePureVolume() *schema.Resource {
 				Required:     true,
 				ValidateFunc: validation.StringMatch(regexp.MustCompile(`^[\w\-_\d]+$`), "can only contain letters, numbers, '-' and '_'"),
 			},
+			"full_name": {
+				Description: "Full name of the volume, including the volume group in case the volume is added to a group.",
+				Type:        schema.TypeString,
+				Computed:    true,
+			},
 			"size": {
 				Description: "Specified provisioned size of the volume. Number in bytes",
 				Type:        schema.TypeInt,
@@ -139,6 +144,7 @@ func resourcePureVolumeRead(ctx context.Context, d *schema.ResourceData, m inter
 		d.Set("volume_group", splitName[0])
 	}
 
+	d.Set("full_name", vol.Name)
 	d.Set("size", vol.Size)
 	d.Set("serial", vol.Serial)
 	d.Set("created", vol.Created)
