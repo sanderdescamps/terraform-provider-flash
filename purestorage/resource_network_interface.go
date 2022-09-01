@@ -60,7 +60,7 @@ func resourcePureNetworkInterface() *schema.Resource {
 				Description:  "Subnet mask i the form ddd.ddd.ddd.ddd (ex. 255.255.255.0)",
 				Required:     false,
 				Optional:     true,
-				ValidateFunc: validation.IsMACAddress,
+				ValidateFunc: validation.IsIPAddress,
 			},
 			"enabled": {
 				Type:        schema.TypeBool,
@@ -76,11 +76,12 @@ func resourcePureNetworkInterface() *schema.Resource {
 				ValidateFunc: validation.IntBetween(568, 9000),
 			},
 			"mac": {
-				Type:        schema.TypeString,
-				Description: "mac address",
-				Computed:    true,
-				Required:    false,
-				Optional:    false,
+				Type:         schema.TypeString,
+				Description:  "mac address",
+				Computed:     true,
+				Required:     false,
+				Optional:     false,
+				ValidateFunc: validation.IsMACAddress,
 			},
 			"speed": {
 				Type:        schema.TypeInt,
