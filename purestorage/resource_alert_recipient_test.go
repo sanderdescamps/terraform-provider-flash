@@ -24,8 +24,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-const testAccCheckPureAlertRecipientResourceName = "purefa_dns_settings.tfdnssettingstest"
-
 // Create a hostgroup
 func TestAccResourcePureAlertRecipient(t *testing.T) {
 	resource.Test(t, resource.TestCase{

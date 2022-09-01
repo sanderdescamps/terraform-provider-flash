@@ -45,6 +45,7 @@ func resourcePureDnsSettings() *schema.Resource {
 					ValidateFunc: validation.IsIPAddress,
 				},
 				MaxItems: 3,
+				Required: true,
 			},
 			"domain": {
 				Type:         schema.TypeString,
