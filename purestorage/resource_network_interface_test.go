@@ -26,7 +26,7 @@ import (
 
 // Configure DNS settings
 func TestAccResourcePureNetworkInterface_create(t *testing.T) {
-	ifname := "virt1"
+	ifname := "vir1"
 	address1 := "192.168.6.3"
 	address2 := "192.168.6.4"
 	gateway := "192.168.6.1"
