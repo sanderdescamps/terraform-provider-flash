@@ -14,11 +14,11 @@ curl -k -XPOST "${PURE_URL}/api/${PURE_API_VERSION}/auth/session" \
     -d "{\"api_token\": \"$PURE_API_TOKEN\"}"
 
 
-curl -k -XGET "${PURE_URL}/api/${PURE_API_VERSION}/network/vir1" \
+curl -k -XPUT "${PURE_URL}/api/${PURE_API_VERSION}/network/vir1" \
     -H 'Content-Type: application/json' \
     -d "{\"address\": \"192.168.6.3\",\"gateway\": \"192.168.6.1\",\"netmask\": \"255.255.255.0\",\"mtu\": 1500}" \
     -b cookies.txt -v | jq -r '.'
 
-curl -k -XGET "${PURE_URL}/api/${PURE_API_VERSION}/network/vir1?address=192.168.6.4&gateway=192.168.6.3&netmask=255.255.255.0&mtu=1500" \
+curl -k -XPUT "${PURE_URL}/api/${PURE_API_VERSION}/network/vir1?address=192.168.6.4&gateway=192.168.6.3&netmask=255.255.255.0&mtu=1500" \
     -H 'Content-Type: application/json' \
     -b cookies.txt -v | jq -r '.'

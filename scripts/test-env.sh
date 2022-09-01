@@ -3,6 +3,9 @@
 # yum install git gcc
 # git clone https://github.com/sanderdescamps/terraform-provider-flash.git
 
+# yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+# yum -y install jq
+
 wget https://go.dev/dl/go1.19.linux-amd64.tar.gz
 
 rm -rf /usr/local/go && tar -C /usr/local -xzf go1.19.linux-amd64.tar.gz
