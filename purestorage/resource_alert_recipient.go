@@ -68,13 +68,13 @@ func resourcePureAlertRecipientCreate(ctx context.Context, d *schema.ResourceDat
 		d.SetId(alert.Name)
 	}
 
-	if e, ok := d.GetOk("enabled"); ok && !e.(bool) {
-		data := make(map[string]interface{})
-		data["enabled"] = false
-		if _, err := client.Alerts.SetAlert(email, data); err != nil {
+	if !d.Get("enabled").(bool) {
+		if alertrecp, err := client.Alerts.DisableAlert(email); err != nil {
 			diag.FromErr(err)
+		} else {
+			d.Set("enabled", alertrecp.Enabled)
 		}
-		d.Set("enabled", false)
+
 	} else {
 		d.Set("enabled", true)
 	}
