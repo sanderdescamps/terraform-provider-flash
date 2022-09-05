@@ -138,6 +138,47 @@ func testAccCheckPureVolumeDestroy(s *terraform.State) error {
 	return nil
 }
 
+// The pugo sdk does not support the 'pending_only' parameter. This is a temporary fix.
+type Volume struct {
+	Name    string `json:"name,omitempty"`
+	Source  string `json:"source,omitempty"`
+	Serial  string `json:"serial,omitempty"`
+	Size    int    `json:"size,omitempty"`
+	Created string `json:"created,omitempty"`
+
+	// response returned with the pending_only=true flag
+	TimeRemaining            *int    `json:"time_remaining,omitempty"`
+	PromotionStatus          *string `json:"promotion_status,omitempty"`
+	RequestedPromotionStatus *string `json:"requested_promotion_status,omitempty"`
+}
+
+// Checks if resources are still pending for deletion and eredicates if needed
+// The pugo sdk does not support listing deleted volumegroups. This method includes a temporary fix.
+func testAccCheckPureVolumeEradicate(s *terraform.State) error {
+	client := testAccProvider.Meta().(*flasharray.Client)
+
+	for _, rs := range s.RootModule().Resources {
+		if rs.Type != "purefa_volume" {
+			continue
+		}
+
+		params := map[string]string{"pending_only": "true"}
+		req, _ := client.NewRequest("GET", fmt.Sprintf("volume/%s", rs.Primary.ID), params, nil)
+		volume := &Volume{}
+		_, err := client.Do(req, &volume, false)
+		if err != nil {
+			return nil
+		} else if volume != nil && volume.TimeRemaining != nil && *volume.TimeRemaining > 0 {
+			_, err := client.Volumes.EradicateVolume(volume.Name)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
 func testAccCheckPureVolumeExists(n string, exists bool) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
