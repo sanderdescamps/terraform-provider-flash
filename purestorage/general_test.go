@@ -38,7 +38,7 @@ func TestAccResourcePureLargeTest(t *testing.T) {
 func testAccCheckPureHostConfigFullSetup(numberOfHosts int, numberOfVolumes int, testID string) string {
 	output := ""
 	output += fmt.Sprintf(`
-		resource "purefa_vgroup" "tfhosttest-volumegroup" {
+		resource "purefa_volumegroup" "tfhosttest-volumegroup" {
 			name = "tfhosttest-volumegroup-%s"
 		}
 		`, testID)
@@ -46,7 +46,7 @@ func testAccCheckPureHostConfigFullSetup(numberOfHosts int, numberOfVolumes int,
 		resource "purefa_volume" "tfhosttest-volumes" {
 			name = "tfhosttest-volume-%s-${count.index}"
 			size = 1024000000
-			volume_group = purefa_vgroup.tfhosttest-volumegroup.name
+			volume_group = purefa_volumegroup.tfhosttest-volumegroup.name
 			count = %d
 		}
 		`, testID, numberOfVolumes)
