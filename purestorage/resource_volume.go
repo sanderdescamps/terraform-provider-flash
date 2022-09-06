@@ -39,6 +39,12 @@ func resourcePureVolume() *schema.Resource {
 			State: schema.ImportStatePassthrough,
 		},
 		Schema: map[string]*schema.Schema{
+			"allow_destroy": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: "When set to false, this value will prevent  volume from being destroyed through Terraform.",
+			},
 			"name": {
 				Description:  "Name of the volume.",
 				Type:         schema.TypeString,
@@ -151,6 +157,7 @@ func resourcePureVolumeRead(ctx context.Context, d *schema.ResourceData, m inter
 	d.Set("serial", vol.Serial)
 	d.Set("created", vol.Created)
 	d.Set("source", vol.Source)
+	d.Set("allow_destroy", d.Get("allow_destroy").(bool))
 	return nil
 }
 
@@ -222,6 +229,10 @@ func resourcePureVolumeUpdate(ctx context.Context, d *schema.ResourceData, m int
 // data loss.  The volume's timer will start for 24 hours, at that time
 // the volume will be eradicated.
 func resourcePureVolumeDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	if d.Get("allow_destroy") == false {
+		return diag.Errorf("The `allow_destroy` parameter is set to false. The volume can not be destroyed through Terraform.")
+	}
+
 	client := m.(*flasharray.Client)
 	_, err := client.Volumes.DeleteVolume(d.Id())
 

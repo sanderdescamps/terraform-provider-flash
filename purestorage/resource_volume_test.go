@@ -245,6 +245,7 @@ func testAccCheckPureVolumeConfig(rInt int) string {
 resource "purefa_volume" "tfvolumetest" {
         name = "tfvolumetest-%d"
         size = 1024000000
+		allow_destroy = true
 }`, rInt)
 }
 
@@ -253,11 +254,13 @@ func testAccCheckPureVolumeConfigClone(rInt int) string {
 resource "purefa_volume" "tfvolumetest" {
         name = "tfvolumetest-%d"
         size = 1024000000
+		allow_destroy = true
 }
 
 resource "purefa_volume" "tfclonevolumetest" {
         name = "tfclonevolumetest-%d"
         source = "${purefa_volume.tfvolumetest.name}"
+		allow_destroy = true
 }`, rInt, rInt)
 }
 
@@ -266,6 +269,7 @@ func testAccCheckPureVolumeConfigResize(rInt int) string {
 resource "purefa_volume" "tfvolumetest" {
 	name = "tfvolumetest-%d"
 	size = 2048000000
+	allow_destroy = true
 }`, rInt)
 }
 
@@ -274,5 +278,6 @@ func testAccCheckPureVolumeConfigRename(rInt int) string {
 resource "purefa_volume" "tfvolumetest" {
         name = "tfvolumetest-rename-%d"
         size = 2048000000
+		allow_destroy = true
 }`, rInt)
 }
