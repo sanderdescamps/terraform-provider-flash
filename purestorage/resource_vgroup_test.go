@@ -28,7 +28,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
-const testAccCheckPureVolumeGroupResourceName = "purefa_vgroup.tfvolumegrouptest"
+const testAccCheckPureVolumeGroupResourceName = "purefa_volumegroup.tfvolumegrouptest"
 
 // The volumes created in theses tests will not be eradicated.
 //
@@ -115,7 +115,7 @@ func testAccCheckPureVolumeGroupDestroy(s *terraform.State) error {
 	client := testAccProvider.Meta().(*flasharray.Client)
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "purefa_vgroup" {
+		if rs.Type != "purefa_volumegroup" {
 			continue
 		}
 
@@ -144,7 +144,7 @@ func testAccCheckPureVolumeGroupEradicate(s *terraform.State) error {
 	client := testAccProvider.Meta().(*flasharray.Client)
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "purefa_vgroup" {
+		if rs.Type != "purefa_volumegroup" {
 			continue
 		}
 
@@ -193,7 +193,7 @@ func testAccCheckPureVolumeGroupCount(testID string, count int) resource.TestChe
 		rsCount := 0
 		vgCount := 0
 		for _, rs := range s.RootModule().Resources {
-			if rs.Type != "purefa_vgroup" {
+			if rs.Type != "purefa_volumegroup" {
 				continue
 			}
 
@@ -228,7 +228,7 @@ func testAccCheckPureVolumeGroupCount(testID string, count int) resource.TestChe
 
 func testAccCheckPureVolumeGroupConfig(vgroupName string, testID int) string {
 	return fmt.Sprintf(`
-resource "purefa_vgroup" "tfvolumegrouptest" {
+resource "purefa_volumegroup" "tfvolumegrouptest" {
         name = "%s-%d"
 }`, vgroupName, testID)
 }
@@ -236,14 +236,14 @@ resource "purefa_vgroup" "tfvolumegrouptest" {
 func testAccCheckPureVolumeGroupConfigWithVolumes(vgroupName string, volumeName string, numerOfVolumes int, testID int) string {
 	output := ""
 	output += fmt.Sprintf(`
-		resource "purefa_vgroup" "tfvolumegrouptest" {
+		resource "purefa_volumegroup" "tfvolumegrouptest" {
 				name = "%s-%d"
 		}`, vgroupName, testID)
 	output += fmt.Sprintf(`
 		resource "purefa_volume" "tfvolumetest" {
 			name = "%s-%d-${count.index}"
 			size = 1024000000
-			volume_group = purefa_vgroup.tfvolumegrouptest.name
+			volume_group = purefa_volumegroup.tfvolumegrouptest.name
 			count = %d
 		}`, volumeName, testID, numerOfVolumes)
 	return output
@@ -252,7 +252,7 @@ func testAccCheckPureVolumeGroupConfigWithVolumes(vgroupName string, volumeName 
 func testAccCheckPureVolumeGroupConfigWithoutVolumes(vgroupName string, volumeName string, numerOfVolumes int, testID int) string {
 	output := ""
 	output += fmt.Sprintf(`
-		resource "purefa_vgroup" "tfvolumegrouptest" {
+		resource "purefa_volumegroup" "tfvolumegrouptest" {
 				name = "%s-%d"
 		}`, vgroupName, testID)
 	output += fmt.Sprintf(`
@@ -267,18 +267,18 @@ func testAccCheckPureVolumeGroupConfigWithoutVolumes(vgroupName string, volumeNa
 func testAccCheckPureVolumeGroupConfigMoveVolumes(vgroupName string, volumeName string, numerOfVolumes int, testID int) string {
 	output := ""
 	output += fmt.Sprintf(`
-		resource "purefa_vgroup" "tfvolumegrouptest" {
+		resource "purefa_volumegroup" "tfvolumegrouptest" {
 				name = "%s-%d"
 		}`, vgroupName, testID)
 	output += fmt.Sprintf(`
-		resource "purefa_vgroup" "tfvolumegrouptest2" {
+		resource "purefa_volumegroup" "tfvolumegrouptest2" {
 				name = "%s-%d-2"
 		}`, vgroupName, testID)
 	output += fmt.Sprintf(`
 		resource "purefa_volume" "tfvolumetest" {
 			name = "%s-%d-${count.index}"
 			size = 1024000000
-			volume_group = purefa_vgroup.tfvolumegrouptest2.name
+			volume_group = purefa_volumegroup.tfvolumegrouptest2.name
 			count = %d
 		}`, volumeName, testID, numerOfVolumes)
 	return output

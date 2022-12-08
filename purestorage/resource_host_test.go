@@ -222,7 +222,7 @@ func TestAccResourcePureHost_volumeWithVolumegroup(t *testing.T) {
 	testID := strconv.Itoa(acctest.RandInt())
 
 	resource_name_volume := "purefa_volume.tfhosttest-volume"
-	resource_name_vgroup := "purefa_vgroup.tfhosttest-volumegroup"
+	resource_name_vgroup := "purefa_volumegroup.tfhosttest-volumegroup"
 	resource_name_host := "purefa_host.tfhosttest"
 
 	resource.Test(t, resource.TestCase{
@@ -557,7 +557,7 @@ resource "purefa_host" "tfhosttest" {
 func testAccCheckPureHostConfigWithVolumeAndVolumegroup(testID string) string {
 	output := ""
 	output += fmt.Sprintf(`
-		resource "purefa_vgroup" "tfhosttest-volumegroup" {
+		resource "purefa_volumegroup" "tfhosttest-volumegroup" {
 			name = "tfhosttest-volumegroup-%s"
 		}
 		`, testID)
@@ -565,7 +565,7 @@ func testAccCheckPureHostConfigWithVolumeAndVolumegroup(testID string) string {
 		resource "purefa_volume" "tfhosttest-volume" {
 			name = "tfhosttest-volume-%s"
 			size = 1024000000
-			volume_group = purefa_vgroup.tfhosttest-volumegroup.name
+			volume_group = purefa_volumegroup.tfhosttest-volumegroup.name
 		}
 		`, testID)
 

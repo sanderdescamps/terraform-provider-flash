@@ -92,7 +92,7 @@ func Provider() *schema.Provider {
 			"purefa_host":            resourcePureHost(),
 			"purefa_hostgroup":       resourcePureHostgroup(),
 			"purefa_protectiongroup": resourcePureProtectiongroup(),
-			"purefa_vgroup":          resourcePureVolumegroup(),
+			"purefa_volumegroup":     resourcePureVolumegroup(),
 			// "purefa_network_interface": resourcePureNetworkInterface(),
 			"purefa_dns_settings":    resourcePureDnsSettings(),
 			"purefa_alert_recipient": resourcePureAlertRecipient(),
