@@ -6,7 +6,7 @@ ARCH=amd64
 OS=linux
 OS_ARCH=${OS}_${ARCH}
 PKG_NAME=terraform-provider-${PROVIDER_NAME}
-TF_PLUGIN_PATH=~/.terraform.d/plugins/localdomain/provider/${PROVIDER_NAME}/${VERSION}/${OS}_${ARCH}
+TF_PLUGIN_PATH=~/.terraform.d/plugins/localdomain/provider/${PROVIDER_NAME}/${VERSION}/${OS_ARCH}
 
 default: build
 
